@@ -17,16 +17,19 @@ namespace DivaDnsWebApi.Controllers
 
         [HttpGet("{domainName}", Name = $"{nameof(GetDomainName)}")]
         [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(404)]
         public ActionResult<string> GetDomainName([FromRoute] string domainName)
         {
             return Ok(domainName);
         }
 
-        [HttpPut("{domainName}", Name = $"{nameof(PutDomainName)}")]
-        [ProducesResponseType(typeof(DomainCreatedDto), 200)]
-        public ActionResult<DomainCreatedDto> PutDomainName([FromBody] CreateDomainDto domainName)
+        [HttpPut(Name = $"{nameof(PutDomainName)}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(502)]
+        public ActionResult PutDomainName([FromBody] CreateDomainDto createDomainDto)
         {
-            return Ok(new DomainCreatedDto(domainName.DomainName));
+            return Ok();
         }
     }
 }
