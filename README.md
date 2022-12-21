@@ -14,3 +14,8 @@ To **Stop** the docker container:
 ```
 docker-compose stop
 ```
+
+## OpenApi support
+```
+/swagger/index.html
+```
