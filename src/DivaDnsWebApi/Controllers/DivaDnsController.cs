@@ -23,11 +23,11 @@ namespace DivaDnsWebApi.Controllers
             return Ok(domainName);
         }
 
-        [HttpPut(Name = $"{nameof(PutDomainName)}")]
+        [HttpPut("{domainName}", Name = $"{nameof(PutDomainName)}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(502)]
-        public ActionResult PutDomainName([FromBody] CreateDomainDto createDomainDto)
+        public ActionResult PutDomainName([FromRoute] string domainName, [FromBody] CreateDomainDto createDomainDto)
         {
             return Ok();
         }
