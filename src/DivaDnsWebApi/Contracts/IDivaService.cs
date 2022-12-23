@@ -2,6 +2,6 @@
 {
     public interface IDivaService
     {
-        Task<string> GetAsync(string domainName);
+        Task<HttpResponseMessage> GetAsync(string domainName);
     }
 }

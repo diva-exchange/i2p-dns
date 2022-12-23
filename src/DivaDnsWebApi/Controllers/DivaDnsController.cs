@@ -24,9 +24,14 @@ namespace DivaDnsWebApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<string>> GetDomainName([FromRoute] string domainName)
         {
-            await _divaService.GetAsync(domainName);
+            var result = await _divaService.GetAsync(domainName);
 
-            return Ok(domainName);
+            if (!result.IsSuccessStatusCode)
+            {
+                return NotFound();
+            }
+
+            return Ok(result.Content.ReadAsStringAsync());
         }
 
         [HttpPut("{domainName:regex(^[[a-z0-9-_]]{{3,64}}\\.i2p$)}/{b32String:regex(^[[a-z0-9]]{{52}})}", Name = $"{nameof(PutDomainName)}")]

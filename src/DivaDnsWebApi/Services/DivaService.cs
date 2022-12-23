@@ -12,10 +12,9 @@ namespace DivaDnsWebApi.Services
             _httpClient = httpClient;
         }
 
-        public async Task<string> GetAsync(string domainName)
+        public async Task<HttpResponseMessage> GetAsync(string domainName)
         {
-            var response = await _httpClient.GetAsync($"state/decision:I2PDNS:{domainName}");
-            return await response.Content.ReadAsStringAsync();
+            return await _httpClient.GetAsync($"state/decision:I2PDNS:{domainName}");
         }
     }
 }
