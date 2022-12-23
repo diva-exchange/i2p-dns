@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace DivaDnsWebApi.Dto
 {
@@ -6,26 +6,26 @@ namespace DivaDnsWebApi.Dto
     {
         public TransactionDto(string domainName, string b32String, int number)
         {
-            this.Sequence = 1;
-            this.Command = "decision";
-            this.Ns = "I2PDNS:[domain-name]";
-            this.Data = $"{domainName}={b32String}";
-            this.Number = number;
+            Sequence = 1;
+            Command = "decision";
+            Ns = "I2PDNS:[domain-name]";
+            Data = $"{domainName}={b32String}";
+            Number = number;
         }
 
-        [JsonPropertyName("seq")]
+        [JsonProperty(PropertyName = "seq")]
         public int Sequence { get; set; }
 
-        [JsonPropertyName("command")]
+        [JsonProperty(PropertyName = "command")]
         public string Command { get; set; }
 
-        [JsonPropertyName("ns")]
+        [JsonProperty(PropertyName = "ns")]
         public string Ns { get; set; }
 
-        [JsonPropertyName("number")]
+        [JsonProperty(PropertyName = "number")]
         public int Number { get; set; }
 
-        [JsonPropertyName("d")]
+        [JsonProperty(PropertyName = "d")]
         public string Data { get; set; }
     }
 }
