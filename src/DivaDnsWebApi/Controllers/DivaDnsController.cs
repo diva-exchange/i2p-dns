@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DivaDnsWebApi.Contracts;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DivaDnsWebApi.Controllers
 {
@@ -7,18 +8,24 @@ namespace DivaDnsWebApi.Controllers
     [Produces("application/json")]
     public class DivaDnsController : ControllerBase
     {
+        private readonly IDivaService _divaService;
         private readonly ILogger<DivaDnsController> _logger;
 
-        public DivaDnsController(ILogger<DivaDnsController> logger)
+        public DivaDnsController(
+            IDivaService divaService, 
+            ILogger<DivaDnsController> logger)
         {
+            _divaService = divaService;
             _logger = logger;
         }
 
         [HttpGet("{domainName:regex(^[[a-z0-9-_]]{{3,64}}\\.i2p$)}", Name = $"{nameof(GetDomainName)}")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(404)]
-        public ActionResult<string> GetDomainName([FromRoute] string domainName)
+        public async Task<ActionResult<string>> GetDomainName([FromRoute] string domainName)
         {
+            await _divaService.GetAsync(domainName);
+
             return Ok(domainName);
         }
 
