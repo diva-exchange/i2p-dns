@@ -32,7 +32,6 @@ namespace DivaDnsWebApi.Controllers
             }
             catch (Exception)
             {
-
                 return NotFound();
             }
                      
@@ -51,7 +50,23 @@ namespace DivaDnsWebApi.Controllers
         [ProducesResponseType(502)]
         public ActionResult PutDomainName([FromRoute] string domainName, [FromRoute] string b32String)
         {
-            return Ok();
+            HttpResponseMessage result;
+
+            try
+            {
+                result = await _divaService.PostAsync(domainName, b32String, 0);
+            }
+            catch (Exception)
+            {
+                return NotFound();
+            }
+                     
+            if (!result.IsSuccessStatusCode)
+            {
+                return NotFound();
+            }
+
+            return Ok(result.Content.ReadAsStringAsync());
         }
     }
 }

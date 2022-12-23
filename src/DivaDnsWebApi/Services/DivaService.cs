@@ -1,4 +1,6 @@
 ﻿using DivaDnsWebApi.Contracts;
+using DivaDnsWebApi.Dto;
+using System.Text.Json.Serialization;
 
 namespace DivaDnsWebApi.Services
 {
@@ -14,14 +16,15 @@ namespace DivaDnsWebApi.Services
 
         public async Task<HttpResponseMessage> GetAsync(string domainName)
         {
-            return await _httpClient.GetAsync($"network/online");
-
-            //return await _httpClient.GetAsync($"state/decision:I2PDNS:{domainName}");
+            return await _httpClient.GetAsync($"state/decision:I2PDNS:{domainName}");
         }
 
-        public async Task<HttpResponseMessage> PostAsync(string domainName, string b32String)
+        public async Task<HttpResponseMessage> PostAsync(string domainName, string b32String, int number)
         {
-            return await _httpClient.GetAsync($"state/decision:I2PDNS:{domainName}");
+            TransactionDto transaction = new TransactionDto(domainName, b32String, number);
+            var jsonData = JsonConvert.SerializeObject(transaction);
+            string contentData = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            return await _httpClient.PostAsync("transaction/", contentData);
         }
     }
 }
