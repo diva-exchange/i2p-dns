@@ -24,8 +24,18 @@ namespace DivaDnsWebApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<string>> GetDomainName([FromRoute] string domainName)
         {
-            var result = await _divaService.GetAsync(domainName);
+            HttpResponseMessage result;
 
+            try
+            {
+                result = await _divaService.GetAsync(domainName);
+            }
+            catch (Exception)
+            {
+
+                return NotFound();
+            }
+                     
             if (!result.IsSuccessStatusCode)
             {
                 return NotFound();
