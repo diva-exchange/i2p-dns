@@ -59,12 +59,12 @@ namespace DivaDnsWebApi.Controllers
             }
             catch (Exception)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status502BadGateway);
             }
                      
             if (!result.IsSuccessStatusCode)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
 
             return Ok(result.Content.ReadAsStringAsync());
