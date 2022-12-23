@@ -9,8 +9,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-app.UseSwagger();
+// Configure the HTTP request pipeline (middleware).
+app.UseSwagger(); // Use() is a middleware that may act on the incoming request and on the returning response after next()
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
@@ -19,4 +19,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+app.Run(); // Run() is the middleware that terminates the pipe line

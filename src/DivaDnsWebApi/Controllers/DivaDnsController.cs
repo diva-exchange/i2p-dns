@@ -24,6 +24,7 @@ namespace DivaDnsWebApi.Controllers
         }
 
         [HttpPut("{domainName}", Name = $"{nameof(PutDomainName)}")]
+        [Consumes("application/json")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(502)]
