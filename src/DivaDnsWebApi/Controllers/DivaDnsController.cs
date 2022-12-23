@@ -1,5 +1,6 @@
 ﻿using DivaDnsWebApi.Contracts;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace DivaDnsWebApi.Controllers
 {
@@ -48,7 +49,7 @@ namespace DivaDnsWebApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(502)]
-        public ActionResult PutDomainName([FromRoute] string domainName, [FromRoute] string b32String)
+        public async Task<ActionResult> PutDomainName([FromRoute] string domainName, [FromRoute] string b32String)
         {
             HttpResponseMessage result;
 

@@ -1,5 +1,7 @@
 ﻿using DivaDnsWebApi.Contracts;
 using DivaDnsWebApi.Dto;
+using Newtonsoft.Json;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace DivaDnsWebApi.Services
@@ -21,9 +23,11 @@ namespace DivaDnsWebApi.Services
 
         public async Task<HttpResponseMessage> PostAsync(string domainName, string b32String, int number)
         {
-            TransactionDto transaction = new TransactionDto(domainName, b32String, number);
+            var transaction = new TransactionDto(domainName, b32String, number);
+
             var jsonData = JsonConvert.SerializeObject(transaction);
-            string contentData = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var contentData = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
             return await _httpClient.PostAsync("transaction/", contentData);
         }
     }
