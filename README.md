@@ -17,5 +17,5 @@ docker-compose stop
 
 ## OpenApi support
 ```
-/swagger/index.html
+http://localhost:5000/swagger/index.html
 ```
