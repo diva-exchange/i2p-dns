@@ -8,7 +8,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddHttpClient<IDivaService, DivaService>(c =>
 {
-    c.BaseAddress = new Uri("http://127.19.72.21:17468/");
+    string divaServiceUrl = Environment.GetEnvironmentVariable("URL_API_CHAIN") ?? "http://localhost:17468/";
+    c.BaseAddress = new Uri(divaServiceUrl);
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
