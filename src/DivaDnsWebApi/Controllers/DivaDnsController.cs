@@ -20,8 +20,9 @@ namespace DivaDnsWebApi.Controllers
         }
 
         [HttpGet("{domainName:regex(^[[a-z0-9-_]]{{3,64}}\\.i2p$)}", Name = $"{nameof(GetDomainName)}")]
-        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(404)]
+        [ProducesResponseType(502)]
         public async Task<ActionResult<string>> GetDomainName([FromRoute] string domainName)
         {
             HttpResponseMessage result;
@@ -32,21 +33,24 @@ namespace DivaDnsWebApi.Controllers
             }
             catch (Exception)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status502BadGateway);
             }
-                     
-            if (!result.IsSuccessStatusCode)
+
+            if (result.IsSuccessStatusCode)
+            {
+                return Ok(result.Content.ReadAsStringAsync());
+            }
+            else if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 return NotFound();
             }
-
-            return Ok(result.Content.ReadAsStringAsync());
+            
+            return StatusCode(StatusCodes.Status502BadGateway);
         }
 
         [HttpPut("{domainName:regex(^[[a-z0-9-_]]{{3,64}}\\.i2p$)}/{b32String:regex(^[[a-z0-9]]{{52}})}", Name = $"{nameof(PutDomainName)}")]
         [Consumes("application/json")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
         [ProducesResponseType(502)]
         public async Task<ActionResult> PutDomainName([FromRoute] string domainName, [FromRoute] string b32String)
         {
@@ -60,13 +64,13 @@ namespace DivaDnsWebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status502BadGateway);
             }
-                     
-            if (!result.IsSuccessStatusCode)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
 
-            return Ok(result.Content.ReadAsStringAsync());
+            if (result.IsSuccessStatusCode)
+            {
+                return Ok(result.Content.ReadAsStringAsync());
+            }
+            
+            return StatusCode(StatusCodes.Status502BadGateway);
         }
     }
 }
