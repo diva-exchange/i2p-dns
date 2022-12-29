@@ -1,6 +1,5 @@
 ﻿using DivaDnsWebApi.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace DivaDnsWebApi.Controllers
 {
@@ -55,7 +54,7 @@ namespace DivaDnsWebApi.Controllers
 
             try
             {
-                result = await _divaService.PostAsync(domainName, b32String, 0);
+                result = await _divaService.PutAsync(domainName, b32String);
             }
             catch (Exception)
             {

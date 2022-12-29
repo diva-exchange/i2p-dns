@@ -2,15 +2,14 @@ using Newtonsoft.Json;
 
 namespace DivaDnsWebApi.Dto
 {
-    public class TransactionDto
+    public class CommandDto
     {
-        public TransactionDto(string domainName, string b32String, int number)
+        public CommandDto(string domainName, string b32String)
         {
             Sequence = 1;
-            Command = "decision";
-            Ns = "I2PDNS:[domain-name]";
-            Data = $"{domainName}={b32String}";
-            Number = number;
+            Command = "data";
+            Ns = $"I2PDNS:{domainName}";
+            Data = b32String;
         }
 
         [JsonProperty(PropertyName = "seq")]
@@ -21,9 +20,6 @@ namespace DivaDnsWebApi.Dto
 
         [JsonProperty(PropertyName = "ns")]
         public string Ns { get; set; }
-
-        [JsonProperty(PropertyName = "number")]
-        public int Number { get; set; }
 
         [JsonProperty(PropertyName = "d")]
         public string Data { get; set; }

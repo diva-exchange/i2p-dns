@@ -2,7 +2,6 @@
 using DivaDnsWebApi.Dto;
 using Newtonsoft.Json;
 using System.Text;
-using System.Text.Json.Serialization;
 
 namespace DivaDnsWebApi.Services
 {
@@ -18,17 +17,18 @@ namespace DivaDnsWebApi.Services
 
         public async Task<HttpResponseMessage> GetAsync(string domainName)
         {
-            return await _httpClient.GetAsync($"state/decision:I2PDNS:{domainName}");
+            return await _httpClient.GetAsync($"state/I2PDNS:{domainName}");
         }
 
-        public async Task<HttpResponseMessage> PostAsync(string domainName, string b32String, int number)
+        public async Task<HttpResponseMessage> PutAsync(string domainName, string b32String)
         {
-            var transaction = new TransactionDto(domainName, b32String, number);
+            var command = new CommandDto(domainName, b32String);
+            var transaction = new List<CommandDto>(){command};
 
             var jsonData = JsonConvert.SerializeObject(transaction);
             var contentData = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-            return await _httpClient.PostAsync("transaction/", contentData);
+            return await _httpClient.PutAsync("transaction/", contentData);
         }
     }
 }
