@@ -19,10 +19,7 @@ namespace DivaDnsWebApi.Services
         {
             var result = await _httpClient.GetAsync($"state/IIPDNS:{convertToCompatibility(domainName)}");
 
-            if (!result.IsSuccessStatusCode)
-            {
-                throw new Exception();
-            }
+            result.EnsureSuccessStatusCode();
 
             var jsonResult = await result.Content.ReadAsStringAsync();
 
@@ -46,19 +43,11 @@ namespace DivaDnsWebApi.Services
 
             var result = await _httpClient.PutAsync("transaction/", contentData);
 
-            if (!result.IsSuccessStatusCode)
-            {
-                throw new Exception();
-            }
+            result.EnsureSuccessStatusCode();
 
             var jsonResult = await result.Content.ReadAsStringAsync();
 
-            var putResultDto = JsonConvert.DeserializeObject<PutResultDto>(jsonResult);
-
-            if (putResultDto == null)
-            {
-                throw new Exception();
-            }
+            var putResultDto = JsonConvert.DeserializeObject<PutResultDto>(jsonResult) ?? new PutResultDto(string.Empty);
 
             return putResultDto;
         }

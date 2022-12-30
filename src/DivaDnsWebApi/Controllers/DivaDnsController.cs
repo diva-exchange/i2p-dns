@@ -32,6 +32,15 @@ namespace DivaDnsWebApi.Controllers
             {
                 result = await _divaService.GetAsync(domainName);
             }
+            catch (HttpRequestException hrEx)
+            {
+                if (hrEx.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound);
+                }
+
+                return StatusCode(StatusCodes.Status502BadGateway);
+            }            
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status502BadGateway);
