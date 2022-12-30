@@ -17,13 +17,12 @@ namespace DivaDnsWebApi.Services
 
         public async Task<GetResultDto> GetAsync(string domainName)
         {
-            var result = await _httpClient.GetAsync($"state/IIPDNS:{convertToCompatibility(domainName)}");
-
+            var result = await _httpClient.GetAsync($"state/search/IIPDNS:{convertToCompatibility(domainName)}");
             result.EnsureSuccessStatusCode();
 
             var jsonResult = await result.Content.ReadAsStringAsync();
-
-            return JsonConvert.DeserializeObject<GetResultDto>(jsonResult);
+            GetResultDto[] resultDtos = JsonConvert.DeserializeObject<GetResultDto[]>(jsonResult) ?? new GetResultDto[0];
+            return resultDtos[0];
         }
 
         public async Task<PutResultDto> PutAsync(string domainName, string b32String)
@@ -35,11 +34,9 @@ namespace DivaDnsWebApi.Services
             var contentData = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             var result = await _httpClient.PutAsync("transaction/", contentData);
-
             result.EnsureSuccessStatusCode();
 
             var jsonResult = await result.Content.ReadAsStringAsync();
-
             return JsonConvert.DeserializeObject<PutResultDto>(jsonResult);
         }
 
