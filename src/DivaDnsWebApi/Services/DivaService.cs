@@ -23,14 +23,7 @@ namespace DivaDnsWebApi.Services
 
             var jsonResult = await result.Content.ReadAsStringAsync();
 
-            var getResultDto = JsonConvert.DeserializeObject<GetResultDto>(jsonResult);
-
-            if (getResultDto == null)
-            {
-                throw new Exception();
-            }
-
-            return getResultDto;
+            return JsonConvert.DeserializeObject<GetResultDto>(jsonResult);
         }
 
         public async Task<PutResultDto> PutAsync(string domainName, string b32String)
@@ -47,9 +40,7 @@ namespace DivaDnsWebApi.Services
 
             var jsonResult = await result.Content.ReadAsStringAsync();
 
-            var putResultDto = JsonConvert.DeserializeObject<PutResultDto>(jsonResult) ?? new PutResultDto(string.Empty);
-
-            return putResultDto;
+            return JsonConvert.DeserializeObject<PutResultDto>(jsonResult);
         }
 
         private string convertToCompatibility(string ns)
