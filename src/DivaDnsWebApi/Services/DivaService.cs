@@ -21,7 +21,10 @@ namespace DivaDnsWebApi.Services
             result.EnsureSuccessStatusCode();
 
             var jsonResult = await result.Content.ReadAsStringAsync();
-            GetResultDto[] resultDtos = JsonConvert.DeserializeObject<GetResultDto[]>(jsonResult) ?? new GetResultDto[0];
+            GetResultDto[]? resultDtos = JsonConvert.DeserializeObject<GetResultDto[]>(jsonResult);
+            if (resultDtos == null || resultDtos.Length == 0) {
+                throw new HttpRequestException(null, null, System.Net.HttpStatusCode.NotFound);
+            }
             return resultDtos[0];
         }
 
