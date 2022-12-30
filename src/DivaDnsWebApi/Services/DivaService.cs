@@ -15,9 +15,25 @@ namespace DivaDnsWebApi.Services
             _httpClient = httpClient;
         }
 
-        public async Task<HttpResponseMessage> GetAsync(string domainName)
+        public async Task<GetResultDto> GetAsync(string domainName)
         {
-            return await _httpClient.GetAsync($"state/I2PDNS:{domainName}");
+            var result = await _httpClient.GetAsync($"state/I2PDNS:{domainName}");
+
+            if (!result.IsSuccessStatusCode)
+            {
+                throw new Exception();
+            }
+
+            var jsonResult = await result.Content.ReadAsStringAsync();
+
+            var getResultDto = JsonConvert.DeserializeObject<GetResultDto>(jsonResult);
+
+            if (getResultDto == null)
+            {
+                throw new Exception();
+            }
+
+            return getResultDto;
         }
 
         public async Task<PutResultDto> PutAsync(string domainName, string b32String)

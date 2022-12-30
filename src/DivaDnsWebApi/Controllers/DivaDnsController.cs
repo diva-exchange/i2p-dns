@@ -21,12 +21,12 @@ namespace DivaDnsWebApi.Controllers
         }
 
         [HttpGet("{domainName:regex(^[[a-z0-9-_]]{{3,64}}\\.i2p$)}", Name = $"{nameof(GetDomainName)}")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(GetResultDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(502)]
-        public async Task<ActionResult<string>> GetDomainName([FromRoute] string domainName)
+        public async Task<ActionResult<GetResultDto>> GetDomainName([FromRoute] string domainName)
         {
-            HttpResponseMessage result;
+            GetResultDto result;
 
             try
             {
@@ -37,16 +37,7 @@ namespace DivaDnsWebApi.Controllers
                 return StatusCode(StatusCodes.Status502BadGateway);
             }
 
-            if (result.IsSuccessStatusCode)
-            {
-                return Ok(result.Content.ReadAsStringAsync());
-            }
-            else if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            
-            return StatusCode(StatusCodes.Status502BadGateway);
+            return Ok(result);
         }
 
         [HttpPut("{domainName:regex(^[[a-z0-9-_]]{{3,64}}\\.i2p$)}/{b32String:regex(^[[a-z0-9]]{{52}})}", Name = $"{nameof(PutDomainName)}")]
