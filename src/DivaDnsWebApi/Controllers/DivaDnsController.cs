@@ -1,4 +1,5 @@
 ﻿using DivaDnsWebApi.Contracts;
+using DivaDnsWebApi.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DivaDnsWebApi.Controllers
@@ -50,11 +51,11 @@ namespace DivaDnsWebApi.Controllers
 
         [HttpPut("{domainName:regex(^[[a-z0-9-_]]{{3,64}}\\.i2p$)}/{b32String:regex(^[[a-z0-9]]{{52}})}", Name = $"{nameof(PutDomainName)}")]
         [Consumes("application/json")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(PutResultDto), 200)]
         [ProducesResponseType(502)]
-        public async Task<ActionResult> PutDomainName([FromRoute] string domainName, [FromRoute] string b32String)
+        public async Task<ActionResult<PutResultDto>> PutDomainName([FromRoute] string domainName, [FromRoute] string b32String)
         {
-            HttpResponseMessage result;
+            PutResultDto result;
 
             try
             {
@@ -65,12 +66,7 @@ namespace DivaDnsWebApi.Controllers
                 return StatusCode(StatusCodes.Status502BadGateway);
             }
 
-            if (result.IsSuccessStatusCode)
-            {
-                return Ok(result.Content.ReadAsStringAsync());
-            }
-            
-            return StatusCode(StatusCodes.Status502BadGateway);
+            return Ok(result);
         }
     }
 }

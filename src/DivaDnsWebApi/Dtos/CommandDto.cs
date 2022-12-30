@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace DivaDnsWebApi.Dto
+namespace DivaDnsWebApi.Dtos
 {
     public class CommandDto
     {
