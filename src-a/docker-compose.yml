@@ -1,0 +1,14 @@
+version: "3.9"
+
+name: divaDns
+services:
+  webapi:
+    container_name: webapi
+    build:
+      context: ./src/DivaDnsWebApi
+      dockerfile: ./Dockerfile
+    environment:
+      URL_API_CHAIN: http://127.19.72.21:17468/
+    ports:
+      - "5000:80"
+      - "5001:443"
