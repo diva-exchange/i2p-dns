@@ -17,7 +17,7 @@ namespace DivaDnsWebApi.Services
 
         public async Task<GetResultDto> GetAsync(string domainName)
         {
-            var result = await _httpClient.GetAsync($"state/I2PDNS:{domainName}");
+            var result = await _httpClient.GetAsync($"state/IIPDNS:{convertToCompatibility(domainName)}");
 
             if (!result.IsSuccessStatusCode)
             {
@@ -38,7 +38,7 @@ namespace DivaDnsWebApi.Services
 
         public async Task<PutResultDto> PutAsync(string domainName, string b32String)
         {
-            var command = new CommandDto(domainName, b32String);
+            var command = new CommandDto(convertToCompatibility(domainName), b32String);
             var transaction = new List<CommandDto>(){command};
 
             var jsonData = JsonConvert.SerializeObject(transaction);
@@ -61,6 +61,18 @@ namespace DivaDnsWebApi.Services
             }
 
             return putResultDto;
+        }
+
+        private string convertToCompatibility(string ns)
+        {
+            // FIXME: Workaround to match json schema of data command in divachain 0.34
+            return ns.Replace(".i2p", ":i2p_");
+        }
+
+        private string convertFromCompatibility(string ns)
+        {
+            // FIXME: Workaround to restore correct domain name from data command in divachain 0.34
+            return ns.Replace(":i2p_", ".i2p");
         }
     }
 }

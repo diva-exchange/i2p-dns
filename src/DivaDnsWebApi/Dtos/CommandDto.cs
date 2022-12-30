@@ -8,7 +8,7 @@ namespace DivaDnsWebApi.Dtos
         {
             Sequence = 1;
             Command = "data";
-            Ns = $"I2PDNS:{domainName}";
+            Ns = $"IIPDNS:{domainName}";
             Data = b32String;
         }
 
