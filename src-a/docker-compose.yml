@@ -2,12 +2,16 @@ version: "3.9"
 
 name: divaDns
 services:
-  webapi:
-    container_name: webapi
+  i2p-dns:
+    container_name: i2p-dns
     build:
       context: ./src/DivaDnsWebApi
       dockerfile: ./Dockerfile
     environment:
-      URL_API_CHAIN: http://127.19.72.21:17468/
+      URL_API_CHAIN: http://172.19.72.21:17468/
     ports:
-      - "5000:80"
+      - "5126:80"
+networks:
+  default:
+    name: network.join.testnet.diva.i2p
+    external: true
