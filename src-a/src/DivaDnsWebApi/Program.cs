@@ -22,8 +22,6 @@ var app = builder.Build();
 app.UseSwagger(); // Use() is a middleware that may act on the incoming request and on the returning response after next()
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

@@ -11,4 +11,3 @@ services:
       URL_API_CHAIN: http://127.19.72.21:17468/
     ports:
       - "5000:80"
-      - "5001:443"
