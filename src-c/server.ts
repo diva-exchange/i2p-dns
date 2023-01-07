@@ -3,6 +3,8 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import logging from './config/logging'
 import config from './config/config'
+import i2pDnsRoutes from './routes/I2pDns';
+import { Request, Response, NextFunction } from "express";
 
 const NAMESPACE = 'Server';
 const router = express();
@@ -18,7 +20,7 @@ router.use((req, res, next) => {
     next();
 });
 
-router.use(bodyParser.urlencoded({ extended: false }));
+router.use(express.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
 /** Rules of our API */
@@ -35,7 +37,13 @@ router.use((req, res, next) => {
 });
 
 /** Routes */
-//router.use('/sample', sampleRoutes);
+router.route('/:dns').get(i2pDnsRoutes);
+//router.use('/', i2pDnsRoutes);
+/*
+router.get('/:dns', (req: Request, res: Response) => {
+    return res.send(req.params.dns);
+});
+*/
 
 /** Error handling */
 router.use((req, res, next) => {
