@@ -1,6 +1,6 @@
 # i2p-dns
 
-## Descritpion
+## Description
 This is a Domain Name Service (DNS) that acts on the diva blockchain.
 
 ## Getting started
@@ -48,7 +48,7 @@ docker-compose stop
 ## Provide the docker image
 To **Build** the docker image:
 ```
-docker build --file ./src/DivaDnsWebApi/Dockerfile --tag i2p-dns:src-a ./src/DivaDnsWebApi
+docker build --file ./src/DivaDnsWebApi/Dockerfile --tag i2p-dns:src-a --compress ./src/DivaDnsWebApi
 ```
 
 To **Save** the docker image to an archive:
