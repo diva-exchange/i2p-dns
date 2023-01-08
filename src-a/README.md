@@ -37,12 +37,12 @@ The docker image will be built from the current code and used to run the contain
 
 To **Start** the docker container:
 ```
-docker-compose up -d
+docker compose up -d
 ```
 
 To **Stop** the docker container:
 ```
-docker-compose stop
+docker compose stop
 ```
 
 ## Provide the docker image
