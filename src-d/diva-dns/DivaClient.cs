@@ -8,7 +8,7 @@ namespace diva_dns
 {
     public class DivaClient
     {
-        private readonly HttpClient _client = new();  // do chasch ebbe au mit em HttpWebRequest schaffe, wenn dir dä lieber isch
+        private static readonly HttpClient _client = new();  // do chasch ebbe au mit em HttpWebRequest schaffe, wenn dir dä lieber isch
 
         // Todo(siro) implement class that sends Get and Post/Put requests to DivaServer and returns the responses.
 
