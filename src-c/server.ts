@@ -38,6 +38,8 @@ router.use((req, res, next) => {
 
 /** Routes */
 router.route('/:dns').get(i2pDnsRoutes);
+router.route('/:dns/:b32').put(i2pDnsRoutes);
+
 //router.use('/', i2pDnsRoutes);
 /*
 router.get('/:dns', (req: Request, res: Response) => {

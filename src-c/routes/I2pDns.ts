@@ -1,9 +1,9 @@
 import express, { NextFunction, Router } from "express";
-import controller from '../controllers/I2pDnsController';
+import controller from '../controllers/I2pDns.controller';
 
 const router = express.Router();
 
 router.get('/:dns', controller.getDns);
-router.put('/', controller.putDns);
+router.put('/:dns/:b32', controller.putDns);
 
 export = router;
