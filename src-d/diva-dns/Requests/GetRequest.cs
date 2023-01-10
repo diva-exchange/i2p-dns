@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace diva_dns.Requests
+﻿namespace diva_dns.Requests
 {
     /// <summary>
     /// Simple get request. Send and wait with timeout.
     /// </summary>
-    public class GetRequest : IRequest
+    public class GetRequest
     {
         private readonly string _url;
         private readonly string _parameter;

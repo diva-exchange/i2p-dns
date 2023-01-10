@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
-using diva_dns.Data;
+﻿using System.Net.Http.Json;
 
 namespace diva_dns.Requests
 {
-    public class PutRequest : IRequest
+    public class PutRequest
     {
         private readonly string _url;
         private readonly HttpClient _client;
-        private readonly Data.Data _data;
+        private readonly Data.TransactionV34 _data;
 
         public HttpResponseMessage? ResponseMessage { get; private set; }
 
-        public PutRequest(HttpClient client, string url, Data.Data data)
+        public PutRequest(HttpClient client, string url, Data.TransactionV34 data)
         {
             _client = client;
             _url = url;
