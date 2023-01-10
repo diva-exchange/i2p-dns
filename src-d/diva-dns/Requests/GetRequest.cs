@@ -9,7 +9,7 @@ namespace diva_dns.Requests
     /// <summary>
     /// Simple get request. Send and wait with timeout.
     /// </summary>
-    public class GetRequest
+    public class GetRequest : IRequest
     {
         private readonly string _url;
         private readonly string _parameter;

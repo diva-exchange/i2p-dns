@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace diva_dns.Requests
 {
-    public class PutRequest
+    public class PutRequest : IRequest
     {
         private readonly string _url;
         private readonly HttpClient _client;
