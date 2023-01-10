@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace diva_dns.Util
+﻿namespace diva_dns.Util
 {
     public static class DomainNameExtension
     {
@@ -28,6 +22,16 @@ namespace diva_dns.Util
         public static string ConvertFromV34(this string domainName)
         {
             return domainName.Replace(":i2p_", ".i2p");
+        }
+
+        /// <summary>
+        /// Add the ip2 dns prefix.
+        /// </summary>
+        /// <param name="domainName"></param>
+        /// <returns></returns>
+        public static string AddI2pPrefix(this string domainName)
+        {
+            return $"IIPDNS:{domainName}";
         }
     }
 }
