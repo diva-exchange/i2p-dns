@@ -31,7 +31,7 @@ namespace diva_dns
             return argument.StartsWith("/") && IsDomainName(argument[1..]);
         }
 
-        public static bool IsProperPutARgument(string argument)
+        public static bool IsProperPutArgument(string argument)
         {
             var parts = argument.Split('/');
             return parts.Length == 3 && IsDomainName(parts[1]) && IsB32String(parts[2]);

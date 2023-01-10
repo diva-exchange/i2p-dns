@@ -28,6 +28,12 @@ public class Program
             Console.WriteLine("Has no connection to Diva");
         }
 
+        var status = _server.PerformSearchQuery("state/search/IIPDNS:localhost:i2p_:EKW1H8537sMF2iyca-TcJjwHoCfYwRbH0y0cJNj5qqg", out SearchResult? result);
+
+        var b32 = B32.ToBase32("cas-msed-team-d-test-001.i2p");
+
+        status = _server.PerformPutRequest("cas-msed-team-d-test-001.i2p", b32);
+
         // Todo(siro) handle input from console and forward get/post to DivaClient
         // DivaClient should then send a get or post/put to DivaServer on http://localhost:8080/
         // DivaServer will respond to diva client

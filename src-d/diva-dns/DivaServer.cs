@@ -9,28 +9,94 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace diva_dns
 {
-    public struct Transaction
+    public class SearchResult
     {
-        int seq;
-        string command;
-        string ns;
-        int h;
-        string d;
+        [JsonPropertyName("key")]
+        public string Key { get; set; }
+
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
+    }
+
+    public class AboutResult
+    {
+        [JsonPropertyName("version")]
+        public string Version { get; set; }
+
+        [JsonPropertyName("license")]
+        public string License { get; set; }
+
+        [JsonPropertyName("publicKey")]
+        public string PublicKey { get; set; }
+
+        [JsonPropertyName("height")]
+        public int Height { get; set; }
+    }
+
+    public class Transaction
+    {
+        [JsonPropertyName("seq")]
+        public int Sequence { get; set; }
+
+        [JsonPropertyName("command")]
+        public string Command { get; set; }
+
+        [JsonPropertyName("ns")]
+        public string Namespace { get; set; }
+
+        [JsonPropertyName("h")]
+        public int BlockChainHeight { get; set; }
+
+        [JsonPropertyName("d")]
+        public string Data { get; set; }
 
         public static Transaction Create(string domainName, int blockChainHeight, string b32)
         {
             return new Transaction()
             {
-                seq = 1,
-                command = "decision",
-                ns = $"I2PNS:{domainName}",
-                h = blockChainHeight + 25,
-                d = $"domain-name={b32}"
+                Sequence = 1,
+                Command = "decision",
+                Namespace = $"I2PNS:{domainName}",
+                BlockChainHeight = blockChainHeight + 25,
+                Data = $"domain-name={b32}"
             };
+        }
+    }
+
+    public class Data
+    {
+        [JsonPropertyName("seq")]
+        public int Sequence { get; set; }
+
+        [JsonPropertyName("command")]
+        public string Command { get; set; }
+
+        [JsonPropertyName("ns")]
+        public string Namespace { get; set; }
+
+        [JsonPropertyName("d")]
+        public string Content { get; set; }
+
+        public static Data Create(string domainName, string b32)
+        {
+            return new Data()
+            {
+                Sequence = 1,
+                Command = "data",
+                Namespace = $"IIPDNS:{domainName}",
+                Content = b32
+            };
+        }
+
+        public bool IsValid()
+        {
+            Regex nsMatcher = new Regex(@"^([A-Za-z_-]{4,15}:){1,4}[A-Za-z0-9_-]{1,64}$");
+            return Sequence >= 1 && Command == "data" && nsMatcher.IsMatch(Namespace) && Content.Length <= 8192;
         }
     }
 
@@ -65,6 +131,40 @@ namespace diva_dns
                 }
             }
             catch (Exception e)
+            {
+                // Todo exception handling
+            }
+
+            return false;
+        }
+    }
+
+    public class PutRequest
+    {
+        private readonly string _url;
+        private readonly HttpClient _client;
+        private readonly Data _data;
+
+        public HttpResponseMessage? ResponseMessage { get; private set; }
+
+        public PutRequest(HttpClient client, string url, Data data)
+        {
+            _client = client;
+            _url = url;
+            _data = data;
+        }
+
+        public bool SendAndWaitForAnswer(int timeout_in_ms = -1)
+        {
+            try
+            {
+                var task = _client.PutAsJsonAsync(_url + "transaction/", new[] { _data });
+                if(task.Wait(timeout_in_ms))
+                {
+                    ResponseMessage = task.Result;
+                    return true;
+                }
+            } catch (Exception e)
             {
                 // Todo exception handling
             }
@@ -119,7 +219,27 @@ namespace diva_dns
         private readonly string _listeningPrefix;
         private readonly string _localDivaAddress;
 
-        private int _blockChainHeight = -1;
+        /// <summary>
+        /// Helper to convert to a diva v34 domain name from a current domain name.
+        /// Workaround received from Samuel Abaecherli, Pascal Knecht
+        /// </summary>
+        /// <param name="domainName"></param>
+        /// <returns></returns>
+        private string ConvertToV34(string domainName)
+        {
+            return domainName.Replace(".i2p", ":i2p_");
+        }
+
+        /// <summary>
+        /// Helper to convert a diva v34 domain name to a current domain name.
+        /// Workaround received from Samuel Abaecherli, Pascal Knecht
+        /// </summary>
+        /// <param name="domainName"></param>
+        /// <returns></returns>
+        private string ConvertFromV34(string domainName)
+        {
+            return domainName.Replace(":i2p_", ".i2p");
+        }
 
         /// <summary>
         /// Fetch the height of the blockChain.
@@ -137,85 +257,59 @@ namespace diva_dns
                 }
 
                 var contentStream = response.Content.ReadAsStream();
-                var json = JsonDocument.Parse(contentStream);
+                var about = JsonSerializer.Deserialize<AboutResult>(contentStream);
 
-                if (json.RootElement.TryGetProperty("height", out JsonElement height))
-                {
-                    if (height.TryGetInt32(out int result))
-                    {
-                        return result;
-                    }
-                }
+                return about.Height;
             }
 
             return -1;
         }
 
         /// <summary>
-        /// Send a get request to Diva and return the response.
+        /// Search with a query and return the first obtained result
         /// </summary>
-        /// <param name="rawUrl"></param>
+        /// <param name="query"></param>
+        /// <param name="searchResult"></param>
         /// <returns></returns>
-        public HttpResponseMessage HandleGetRequest(string rawUrl)
+        public HttpStatusCode PerformSearchQuery(string query, out SearchResult? searchResult)
         {
-            if (InputValidation.IsProperGetArgument(rawUrl))
+            searchResult = null;
+            var request = new GetRequest(_client, _localDivaAddress, query);
+            if(request.SendAndWaitForAnswer())
             {
-                string parameter = "state/decision:I2PDNS:" + rawUrl[1..];
-                var request = new GetRequest(_client, _localDivaAddress, parameter);
-                if (request.SendAndWaitForAnswer())
+                if(request.ResponseMessage?.IsSuccessStatusCode ?? false)
                 {
-                    if (request.ResponseMessage?.IsSuccessStatusCode ?? false)
-                    {
-                        return request.ResponseMessage;
-                    }
-                    return new HttpResponseMessage(HttpStatusCode.InternalServerError); // forward error
+                    var contentStream = request.ResponseMessage.Content.ReadAsStream();
+                    var results = JsonSerializer.Deserialize<SearchResult[]>(contentStream);
 
+                    searchResult = results[0];
+                    return request.ResponseMessage.StatusCode;
                 }
-                else
-                {
-                    return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable); // timeout
-                }
+
+                return HttpStatusCode.InternalServerError;
             }
-            return new HttpResponseMessage(HttpStatusCode.BadRequest);  // return Bad Request
+
+            return HttpStatusCode.ServiceUnavailable;
         }
 
         /// <summary>
-        /// Send a Post/Transaction request to Diva and return the response.
+        /// Put a new dns entry
         /// </summary>
         /// <param name="domainName"></param>
         /// <param name="b32"></param>
         /// <returns></returns>
-        public HttpResponseMessage HandlePostRequest(string domainName, string b32)
+        public HttpStatusCode PerformPutRequest(string domainName, string b32)
         {
-            if (InputValidation.IsDomainName(domainName) && InputValidation.IsB32String(b32))
+            var v34DomainName = ConvertToV34(domainName);
+            var data = Data.Create(v34DomainName, b32);
+            var request = new PutRequest(_client, _localDivaAddress, data);
+            if(request.SendAndWaitForAnswer() && request.ResponseMessage != null)
             {
-                var height = GetHeight();
-                if (height == -1)
-                {
-                    return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
-                }
-
-                var transaction = Transaction.Create(domainName, height, b32);
-                var request = new PostRequest(_client, _localDivaAddress, transaction);
-                if (request.SendAndWaitForReponse())
-                {
-                    if (request.ResponseMessage?.IsSuccessStatusCode ?? false)
-                    {
-                        return request.ResponseMessage;
-                    }
-                    return new HttpResponseMessage(HttpStatusCode.InternalServerError); // forward error
-                }
-                else
-                {
-                    return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable); // timeout
-                }
+                return request.ResponseMessage.StatusCode;
             }
-            return new HttpResponseMessage(HttpStatusCode.BadRequest); // return bad request
-        }
 
-        private byte[] ToBuffer(string input)
-        {
-            return System.Text.Encoding.UTF8.GetBytes(input);
+            return HttpStatusCode.ServiceUnavailable;
+
         }
 
         public DivaServer(string prefix, string localDivaAddress)
@@ -235,9 +329,7 @@ namespace diva_dns
             var context = _listener.GetContext();
             var request = context.Request;
             var response = context.Response;
-            string data = string.Empty;
-
-            HttpResponseMessage divaResponse = null;
+            byte[] data = new byte[0];
 
             switch (request.HttpMethod)
             {
@@ -246,53 +338,50 @@ namespace diva_dns
                         if (InputValidation.IsProperGetArgument(request.RawUrl ?? string.Empty))
                         {
                             var parameter = request.RawUrl[1..]; // cut off initial '/'
-                            divaResponse = HandleGetRequest(parameter);
-                            if (divaResponse.IsSuccessStatusCode)
+                            var statusCode = PerformSearchQuery(parameter, out SearchResult? searchResult);
+
+                            response.StatusCode = (int)statusCode;
+                            response.ContentLength64 = 0;
+                            if (searchResult != null)
                             {
-                                // Todo: Parse resonse and send back with HttpListenerResponse
-                            }
+                                var json = JsonSerializer.Serialize(searchResult);
+                                data = Encoding.UTF8.GetBytes(json);
+                            }                            
                         }
                         else
                         {
-                            divaResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                            response.StatusCode = (int)HttpStatusCode.BadRequest;
                         }
                         break;
                     }
                 case "PUT":
-                case "POST":
                     {
-                        if (InputValidation.IsProperPutARgument(request.RawUrl ?? string.Empty))
+                        if (InputValidation.IsProperPutArgument(request.RawUrl ?? string.Empty))
                         {
                             var parameter = request.RawUrl[1..]; // cut off initial '/'
                             var parts = parameter.Split('/');
-                            divaResponse = HandlePostRequest(parts[0], parts[1]);
-                            if (divaResponse.IsSuccessStatusCode)
-                            {
-                                // Todo: Parse resonse and send back with HttpListenerResponse
-                            }
+                            var statusCode = PerformPutRequest(parts[0], parts[1]);
+                            response.StatusCode = (int)statusCode;
                         }
                         else
                         {
-                            divaResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                            response.StatusCode = (int)HttpStatusCode.BadRequest;
                         }
                         break;
                     }
                 default:
-                    divaResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
                     break;
             }
 
-            response.StatusCode = (int)divaResponse.StatusCode;
-            var buffer = ToBuffer(data);
             var outStream = response.OutputStream;
-            outStream.Write(buffer, 0, buffer.Length);
+            outStream.Write(data, 0, data.Length);
             outStream.Close();
         }
 
         public void Start()
         {
             _listener.Start();
-            _blockChainHeight = GetHeight();
 
             // Todo: Run HandleMessage in a loop and exit, when server is stopped
 
