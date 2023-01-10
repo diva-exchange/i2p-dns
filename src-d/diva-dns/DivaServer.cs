@@ -1,54 +1,24 @@
-﻿using diva_dns.Requests;
-using diva_dns.Data;
+﻿using diva_dns.Data;
+using diva_dns.Requests;
 using diva_dns.Util;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 using System.Net;
-using System.Net.Cache;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using diva_dns.Util;
 
 namespace diva_dns
 {
-    public class DivaServer
+    public class DivaDnsServer
     {
         private readonly HttpListener _listener = new();
         private readonly HttpClient _client = new();
 
-        private readonly string _listeningPrefix;
         private readonly string _localDivaAddress;
 
-        /// <summary>
-        /// Fetch the height of the blockChain.
-        /// </summary>
-        /// <returns></returns>
-        private int GetHeight()
-        {
-            var request = new GetRequest(_client, _localDivaAddress, "about");
-            if (request.SendAndWaitForAnswer())
-            {
-                var response = request.ResponseMessage;
-                if (!response?.IsSuccessStatusCode ?? true)
-                {
-                    return -1;  // return -1 in case of error
-                }
+        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
-                var contentStream = response.Content.ReadAsStream();
-                var about = JsonSerializer.Deserialize<AboutResult>(contentStream);
+        private bool _isWaitingForMessage = false;
 
-                return about.Height;
-            }
-
-            return -1;
-        }
+        private Task _messageWorker;
 
         /// <summary>
         /// Search with a query and return the first obtained result
@@ -56,50 +26,64 @@ namespace diva_dns
         /// <param name="query"></param>
         /// <param name="searchResult"></param>
         /// <returns></returns>
-        public HttpStatusCode PerformSearchQuery(string query, out SearchResult? searchResult)
+        public Result<string> ResolveDomainName(string domainName)
         {
-            searchResult = null;
-            var request = new GetRequest(_client, _localDivaAddress, query);
-            if(request.SendAndWaitForAnswer())
+            domainName = domainName.ConvertToV34().AddI2pPrefix();
+            if (!InputValidation.IsProperNsV34(domainName))
             {
-                if(request.ResponseMessage?.IsSuccessStatusCode ?? false)
+                return new Result<string> { StatusCode = HttpStatusCode.BadRequest, Value = null };
+            }
+            var query = $"state/search/{domainName}";
+
+            var request = new GetRequest(_client, _localDivaAddress, query);
+            if (request.SendAndWaitForAnswer())
+            {
+                if (request.ResponseMessage?.IsSuccessStatusCode ?? false)
                 {
                     var contentStream = request.ResponseMessage.Content.ReadAsStream();
                     var results = JsonSerializer.Deserialize<SearchResult[]>(contentStream);
 
-                    searchResult = results[0];
-                    return request.ResponseMessage.StatusCode;
+                    if (results is not null && results.Any())
+                    {
+                        return new Result<string> { StatusCode = request.ResponseMessage.StatusCode, Value = results[0].Value.ConvertFromV34() };
+                    }
+                    return new Result<string> { StatusCode = request.ResponseMessage.StatusCode, Value = null };
                 }
 
-                return HttpStatusCode.InternalServerError;
+                return new Result<string> { StatusCode = HttpStatusCode.InternalServerError, Value = null };
             }
-
-            return HttpStatusCode.ServiceUnavailable;
+            return new Result<string> { StatusCode = HttpStatusCode.ServiceUnavailable, Value = null };
         }
 
         /// <summary>
         /// Put a new dns entry
         /// </summary>
         /// <param name="domainName"></param>
-        /// <param name="b32"></param>
+        /// <param name="b32Address"></param>
         /// <returns></returns>
-        public HttpStatusCode PerformPutRequest(string domainName, string b32)
+        public Result RegisterDomainName(string domainName, string b32Address)
         {
-            var v34DomainName = domainName.ConvertToV34(); ;
-            var data = Data.Data.Create(v34DomainName, b32);
-            var request = new PutRequest(_client, _localDivaAddress, data);
-            if(request.SendAndWaitForAnswer() && request.ResponseMessage != null)
+            domainName = domainName.ConvertToV34().AddI2pPrefix();
+
+            if (!InputValidation.IsProperNsV34(domainName) || !InputValidation.IsB32String(b32Address))
             {
-                return request.ResponseMessage.StatusCode;
+                return new Result { StatusCode = HttpStatusCode.BadRequest };
             }
 
-            return HttpStatusCode.ServiceUnavailable;
+            var data = TransactionV34.PutDomainName(domainName, b32Address);
+            var request = new PutRequest(_client, _localDivaAddress, data);
+
+            if (request.SendAndWaitForAnswer() && request.ResponseMessage != null)
+            {
+                return new Result { StatusCode = request.ResponseMessage.StatusCode };
+            }
+
+            return new Result { StatusCode = HttpStatusCode.ServiceUnavailable };
 
         }
 
-        public DivaServer(string prefix, string localDivaAddress)
+        public DivaDnsServer(string prefix, string localDivaAddress)
         {
-            _listeningPrefix = prefix;
             _localDivaAddress = localDivaAddress;
 
             _listener.Prefixes.Add(prefix);
@@ -111,78 +95,79 @@ namespace diva_dns
         /// </summary>
         public void HandleMessage()
         {
-            var context = _listener.GetContext();
-            var request = context.Request;
-            var response = context.Response;
-            byte[] data = new byte[0];
-
-            switch (request.HttpMethod)
+            try
             {
-                case "GET":
-                    {
-                        if (InputValidation.IsProperGetArgument(request.RawUrl ?? string.Empty))
-                        {
-                            var parameter = request.RawUrl[1..]; // cut off initial '/'
-                            var statusCode = PerformSearchQuery(parameter, out SearchResult? searchResult);
+                _isWaitingForMessage = true;
+                var context = _listener.GetContext();
+                _isWaitingForMessage = false;
+                var request = context.Request;
+                var response = context.Response;
+                byte[] data = new byte[0];
 
-                            response.StatusCode = (int)statusCode;
+                switch (request.HttpMethod)
+                {
+                    case "GET":
+                        {
+                            var parameter = request.RawUrl?.Length > 0 ? request.RawUrl[1..] : "/";  // cut off initial '/'
+                            var result = ResolveDomainName(parameter);
+
+                            response.StatusCode = (int)result.StatusCode;
                             response.ContentLength64 = 0;
-                            if (searchResult != null)
+                            if (result.Value != null)
                             {
-                                var json = JsonSerializer.Serialize(searchResult);
+                                var json = JsonSerializer.Serialize(new ResolveDomainNameResult { B32Address = result.Value });
                                 data = Encoding.UTF8.GetBytes(json);
-                            }                            
+                            }
+                            break;
                         }
-                        else
+                    case "PUT":
                         {
-                            response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        }
-                        break;
-                    }
-                case "PUT":
-                    {
-                        if (InputValidation.IsProperPutArgument(request.RawUrl ?? string.Empty))
-                        {
-                            var parameter = request.RawUrl[1..]; // cut off initial '/'
+                            var parameter = request.RawUrl?.Length > 0 ? request.RawUrl[1..] : "/"; // cut off initial '/'
                             var parts = parameter.Split('/');
-                            var statusCode = PerformPutRequest(parts[0], parts[1]);
-                            response.StatusCode = (int)statusCode;
+                            var result = RegisterDomainName(parts[0], parts[1]);
+                            response.StatusCode = (int)result.StatusCode;
+                            break;
                         }
-                        else
-                        {
-                            response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        }
+                    default:
+                        response.StatusCode = (int)HttpStatusCode.BadRequest;
                         break;
-                    }
-                default:
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    break;
-            }
+                }
 
-            var outStream = response.OutputStream;
-            outStream.Write(data, 0, data.Length);
-            outStream.Close();
+                var outStream = response.OutputStream;
+                outStream.Write(data, 0, data.Length);
+                outStream.Close();
+            } catch
+            {
+                // we need the try catch because GetContext() does not unblock when the HttpListener is stopped.
+            }
         }
 
         public void Start()
         {
+            var token = _tokenSource.Token;
             _listener.Start();
 
-            // Todo: Run HandleMessage in a loop and exit, when server is stopped
-
-            //Task.Run(() =>
-            //{
-            //    while (true)
-            //    {
-            //        HandleMessage();
-            //    }
-            //});
+            _messageWorker = Task.Factory.StartNew(() =>
+            {
+                while(!token.IsCancellationRequested)
+                {
+                    HandleMessage();
+                }
+            }, token);          
         }
 
         public void Stop()
         {
-            Thread.Sleep(1000);
-            _listener.Stop();
+            _tokenSource.Cancel();
+            Thread.Sleep(200);
+            if (_messageWorker.IsCanceled)
+            {
+                _listener.Stop();
+            } else
+            {
+                _listener.Abort();
+            }
+            _messageWorker.Dispose();
         }
 
         public bool IsConnected()
@@ -190,5 +175,15 @@ namespace diva_dns
             var request = new GetRequest(_client, _localDivaAddress, "about");
             return request.SendAndWaitForAnswer(300);
         }
+    }
+
+    public class Result
+    {
+        public HttpStatusCode StatusCode { get; set; }
+    }
+
+    public class Result<TValue> : Result
+    {
+        public TValue? Value { get; set; }
     }
 }

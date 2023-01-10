@@ -1,11 +1,10 @@
 ﻿
 
 using diva_dns;
-using diva_dns.Data;
 
 public class Program
 {
-    private static readonly DivaServer _server = new("http://localhost:8080/", "http://127.19.72.21:17468/");
+    private static DivaDnsServer _server;
 
     private static readonly DivaClient _client = new();
 
@@ -17,6 +16,8 @@ public class Program
         // - Diva URL (IP + Port)
         // = Port for localhost server (currently 8080)
         DivaClient DivaClient = new DivaClient();
+
+        _server = new DivaDnsServer("http://localhost:8080/", "http://127.19.72.21:17468/");
 
         Console.WriteLine("Hello Diva!");
 
@@ -30,11 +31,17 @@ public class Program
             Console.WriteLine("Has no connection to Diva");
         }
 
-        var status = _server.PerformSearchQuery("state/search/IIPDNS:localhost:i2p_:EKW1H8537sMF2iyca-TcJjwHoCfYwRbH0y0cJNj5qqg", out SearchResult? result);
-
-        var b32 = B32.ToBase32("cas-msed-team-d-test-001.i2p");
-
-        status = _server.PerformPutRequest("cas-msed-team-d-test-001.i2p", b32);
+        // Mini example -- uncomment to use diva server directly
+        // string domainName = "cas-test:team-d-Oxac.i2p";
+        // var b32 = B32.ToBase32(domainName);
+        //
+        // var status = _server.RegisterDomainName(domainName, b32);
+        //
+        // => Returns status code
+        //
+        // var result = _server.ResolveDomainName(domainName);
+        //
+        // => Returns status code and b32 address
 
         // Todo(siro) handle input from console and forward get/post to DivaClient
         // DivaClient should then send a get or post/put to DivaServer on http://localhost:8080/
