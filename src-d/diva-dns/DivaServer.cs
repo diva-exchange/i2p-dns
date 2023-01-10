@@ -1,4 +1,5 @@
 ﻿using diva_dns.Requests;
+using diva_dns.Data;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -15,94 +16,6 @@ using System.Threading.Tasks;
 
 namespace diva_dns
 {
-    public class SearchResult
-    {
-        [JsonPropertyName("key")]
-        public string Key { get; set; }
-
-        [JsonPropertyName("value")]
-        public string Value { get; set; }
-    }
-
-    public class AboutResult
-    {
-        [JsonPropertyName("version")]
-        public string Version { get; set; }
-
-        [JsonPropertyName("license")]
-        public string License { get; set; }
-
-        [JsonPropertyName("publicKey")]
-        public string PublicKey { get; set; }
-
-        [JsonPropertyName("height")]
-        public int Height { get; set; }
-    }
-
-    public class Transaction
-    {
-        [JsonPropertyName("seq")]
-        public int Sequence { get; set; }
-
-        [JsonPropertyName("command")]
-        public string Command { get; set; }
-
-        [JsonPropertyName("ns")]
-        public string Namespace { get; set; }
-
-        [JsonPropertyName("h")]
-        public int BlockChainHeight { get; set; }
-
-        [JsonPropertyName("d")]
-        public string Data { get; set; }
-
-        public static Transaction Create(string domainName, int blockChainHeight, string b32)
-        {
-            return new Transaction()
-            {
-                Sequence = 1,
-                Command = "decision",
-                Namespace = $"I2PNS:{domainName}",
-                BlockChainHeight = blockChainHeight + 25,
-                Data = $"domain-name={b32}"
-            };
-        }
-    }
-
-    public class Data
-    {
-        [JsonPropertyName("seq")]
-        public int Sequence { get; set; }
-
-        [JsonPropertyName("command")]
-        public string Command { get; set; }
-
-        [JsonPropertyName("ns")]
-        public string Namespace { get; set; }
-
-        [JsonPropertyName("d")]
-        public string Content { get; set; }
-
-        public static Data Create(string domainName, string b32)
-        {
-            return new Data()
-            {
-                Sequence = 1,
-                Command = "data",
-                Namespace = $"IIPDNS:{domainName}",
-                Content = b32
-            };
-        }
-
-        public bool IsValid()
-        {
-            Regex nsMatcher = new Regex(@"^([A-Za-z_-]{4,15}:){1,4}[A-Za-z0-9_-]{1,64}$");
-            return Sequence >= 1 && Command == "data" && nsMatcher.IsMatch(Namespace) && Content.Length <= 8192;
-        }
-    }
-
-    
-
     public class DivaServer
     {
         private readonly HttpListener _listener = new();
@@ -193,7 +106,7 @@ namespace diva_dns
         public HttpStatusCode PerformPutRequest(string domainName, string b32)
         {
             var v34DomainName = ConvertToV34(domainName);
-            var data = Data.Create(v34DomainName, b32);
+            var data = Data.Data.Create(v34DomainName, b32);
             var request = new PutRequest(_client, _localDivaAddress, data);
             if(request.SendAndWaitForAnswer() && request.ResponseMessage != null)
             {

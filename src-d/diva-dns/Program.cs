@@ -1,6 +1,7 @@
 ﻿
 
 using diva_dns;
+using diva_dns.Data;
 
 public class Program
 {
