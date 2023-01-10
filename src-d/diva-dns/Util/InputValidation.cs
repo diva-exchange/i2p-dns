@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace diva_dns
+namespace diva_dns.Util
 {
     public class InputValidation
     {
@@ -150,7 +150,7 @@ namespace diva_dns
                 bitsLeft += _shift;
                 if (bitsLeft >= 8)
                 {
-                    result[next++] = (byte)(buffer >> (bitsLeft - 8));
+                    result[next++] = (byte)(buffer >> bitsLeft - 8);
                     bitsLeft -= 8;
                 }
             }
@@ -174,7 +174,7 @@ namespace diva_dns
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            if ((offset + length) > data.Length)
+            if (offset + length > data.Length)
                 throw new ArgumentOutOfRangeException();
 
             if (length == 0)
@@ -183,7 +183,7 @@ namespace diva_dns
             // SHIFT is the number of bits per output character, so the length of the
             // output is the length of the input multiplied by 8/SHIFT, rounded up.
             // The computation below will fail, so don't do it.
-            if (length >= (1 << 28))
+            if (length >= 1 << 28)
                 throw new ArgumentOutOfRangeException(nameof(data));
 
             var outputLength = (length * 8 + _shift - 1) / _shift;
@@ -199,7 +199,7 @@ namespace diva_dns
                     if (offset < last)
                     {
                         buffer <<= 8;
-                        buffer |= (data[offset++] & 0xff);
+                        buffer |= data[offset++] & 0xff;
                         bitsLeft += 8;
                     }
                     else
@@ -209,13 +209,13 @@ namespace diva_dns
                         bitsLeft += pad;
                     }
                 }
-                int index = _mask & (buffer >> (bitsLeft - _shift));
+                int index = _mask & buffer >> bitsLeft - _shift;
                 bitsLeft -= _shift;
                 result.Append(_digits[index]);
             }
             if (padOutput)
             {
-                int padding = 8 - (result.Length % 8);
+                int padding = 8 - result.Length % 8;
                 if (padding > 0) result.Append('=', padding == 8 ? 0 : padding);
             }
             return result.ToString();

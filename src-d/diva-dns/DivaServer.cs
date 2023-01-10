@@ -1,5 +1,6 @@
 ﻿using diva_dns.Requests;
 using diva_dns.Data;
+using diva_dns.Util;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -13,6 +14,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using diva_dns.Util;
 
 namespace diva_dns
 {
@@ -23,28 +25,6 @@ namespace diva_dns
 
         private readonly string _listeningPrefix;
         private readonly string _localDivaAddress;
-
-        /// <summary>
-        /// Helper to convert to a diva v34 domain name from a current domain name.
-        /// Workaround received from Samuel Abaecherli, Pascal Knecht
-        /// </summary>
-        /// <param name="domainName"></param>
-        /// <returns></returns>
-        private string ConvertToV34(string domainName)
-        {
-            return domainName.Replace(".i2p", ":i2p_");
-        }
-
-        /// <summary>
-        /// Helper to convert a diva v34 domain name to a current domain name.
-        /// Workaround received from Samuel Abaecherli, Pascal Knecht
-        /// </summary>
-        /// <param name="domainName"></param>
-        /// <returns></returns>
-        private string ConvertFromV34(string domainName)
-        {
-            return domainName.Replace(":i2p_", ".i2p");
-        }
 
         /// <summary>
         /// Fetch the height of the blockChain.
@@ -105,7 +85,7 @@ namespace diva_dns
         /// <returns></returns>
         public HttpStatusCode PerformPutRequest(string domainName, string b32)
         {
-            var v34DomainName = ConvertToV34(domainName);
+            var v34DomainName = domainName.ConvertToV34(); ;
             var data = Data.Data.Create(v34DomainName, b32);
             var request = new PutRequest(_client, _localDivaAddress, data);
             if(request.SendAndWaitForAnswer() && request.ResponseMessage != null)
