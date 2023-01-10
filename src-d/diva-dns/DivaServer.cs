@@ -1,4 +1,5 @@
-﻿using System;
+﻿using diva_dns.Requests;
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -97,79 +98,6 @@ namespace diva_dns
         {
             Regex nsMatcher = new Regex(@"^([A-Za-z_-]{4,15}:){1,4}[A-Za-z0-9_-]{1,64}$");
             return Sequence >= 1 && Command == "data" && nsMatcher.IsMatch(Namespace) && Content.Length <= 8192;
-        }
-    }
-
-    /// <summary>
-    /// Simple get request. Send and wait with timeout.
-    /// </summary>
-    public class GetRequest
-    {
-        private readonly string _url;
-        private readonly string _parameter;
-        private readonly HttpClient _client;
-
-        public HttpResponseMessage? ResponseMessage { get; private set; }
-
-        public GetRequest(HttpClient client, string url, string getParameter = "")
-        {
-            _url = url;
-            _parameter = getParameter;
-            _client = client;
-        }
-
-        public bool SendAndWaitForAnswer(int timeout_in_ms = -1)
-        {
-            try
-            {
-                var url = _url + _parameter;
-                var task = _client.GetAsync(url);
-                if (task.Wait(timeout_in_ms))
-                {
-                    ResponseMessage = task.Result;
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-                // Todo exception handling
-            }
-
-            return false;
-        }
-    }
-
-    public class PutRequest
-    {
-        private readonly string _url;
-        private readonly HttpClient _client;
-        private readonly Data _data;
-
-        public HttpResponseMessage? ResponseMessage { get; private set; }
-
-        public PutRequest(HttpClient client, string url, Data data)
-        {
-            _client = client;
-            _url = url;
-            _data = data;
-        }
-
-        public bool SendAndWaitForAnswer(int timeout_in_ms = -1)
-        {
-            try
-            {
-                var task = _client.PutAsJsonAsync(_url + "transaction/", new[] { _data });
-                if(task.Wait(timeout_in_ms))
-                {
-                    ResponseMessage = task.Result;
-                    return true;
-                }
-            } catch (Exception e)
-            {
-                // Todo exception handling
-            }
-
-            return false;
         }
     }
 
