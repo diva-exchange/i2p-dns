@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Request, Response, NextFunction } from 'express';
 import logging from '../config/logging';
+import config from '../config/config';
 
 const NAMESPACE = 'CONTROLLER';
 
@@ -19,15 +20,23 @@ const getDns2 = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getDnsFromChain = (req: Request, res: Response, next: NextFunction) => {
-    logging.info(NAMESPACE, "GetDnsFromChain");
-    
-    axios.get("https://catfact.ninja/fact")
+    logging.info(NAMESPACE, `GetDnsFromChain ${config.server.divaApi}`);     
+
+    //axios.get(config.server.divaApi)
+    //axios.get("https://catfact.ninja/fact")   
+    axios.get("http://127.19.72.21:17468/state/search/IIPDNS:google.i2p")
         .then(response => res.status(200).send(response.data))
         .catch(err => next(err));
+};
+
+const putDns = (req: Request, res: Response, next: NextFunction) => {
+    logging.info(NAMESPACE, "Put Dns", req.params);
+
+    res.status(200).send(req.params);
 };
 
 const postToChain = (req: Request, res: Response, next: NextFunction) => {
 
 };
 
-export default {getDns, getDns2, getDnsFromChain, postToChain}
+export default {getDns, getDns2, getDnsFromChain, postToChain, putDns}
