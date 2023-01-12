@@ -32,41 +32,38 @@ public class Program
             //User input for Get or Post Request
             while (true)
             {
-                string GetType = "get";
-                string url = "http://localhost:8080/";
+            string GetType = "get";
+            string PutType = "put";
+            string Exit = "exit";
+            string url = "http://localhost:8080/";
                 string requestBody = "/[a-z0-9-_]{3-64}\\.i2p$/[a-z0-9]{52}$";
-                string PutType = "put";
                 Console.WriteLine("Please select the Request type");
                 Console.WriteLine("GET /[a-z0-9-_]{3-64}.i2p$");
                 Console.WriteLine("PUT /[a-z0-9-_]{3-64}.i2p$/[a-z0-9]{52}$");
                 Console.WriteLine("Write Get or Put");
                 var Requesttype = Console.ReadLine();
 
-                if (GetType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine("get");
-                    Task<String> GetResponse = DivaClient.SendGetRequest(url);
-                    Console.WriteLine(GetResponse);
-                    break; //remove break
-                }
-                else if (PutType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine("put");
-                    Task<String> PutResponse =  DivaClient.SendPutRequest(url, requestBody);
-                    Console.WriteLine(PutResponse);
-                    break; //remove break
-                }
-                else
-                {
-                    Console.WriteLine("This Request is invalid");
-                }
+            if (GetType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
+            {
+                Task<String> GetResponse = DivaClient.SendGetRequest(url);
+                Console.WriteLine(GetResponse);
+            }
+            else if (PutType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
+            {
+                Task<String> PutResponse = DivaClient.SendPutRequest(url, requestBody);
+                Console.WriteLine(PutResponse);
+            }
+            else if (Exit.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine("Exit");
+                break;
             }
 
-        //Add exit
-
-        // DivaServer will respond to diva client
-
-        //Todo(siro) handle input from console, when to terminate program and close server
+            else
+            {
+                Console.WriteLine("This Request is invalid");
+            }
+            }
 
         _server.Stop();
 
