@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  diva_dns:
+    container_name: i2p.diva.dns
+    build: .
+    image: diva-dns-image
+    ports:
+      - "8080:8080"
+networks:
+  default:
+    # run in same network as diva-dockerized
+    name: network.join.testnet.diva.i2p
+    external: true
