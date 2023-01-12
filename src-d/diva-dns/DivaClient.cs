@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,79 +14,40 @@ namespace diva_dns
         // Todo(siro) implement class that sends Get and Post/Put requests to DivaServer and returns the responses.
 
         //Simple Get Request function
-        public HttpWebRequest SendGetRequest(string url) // han jetzt mal mit webrequest gaschafet aber mer chans ja au eifach ändere
+        public async Task<HttpClient> SendGetRequestAsync(string url) // han jetzt mal mit webrequest gaschafet aber mer chans ja au eifach ändere
         {
             Console.WriteLine("You startet get function");
             // Create a new request to the specified URL
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-
-            // Set the method to GET
-            request.Method = "GET";
+            HttpResponseMessage response = await _client.GetAsync(url);
 
             // Send the request and get the response
-            try
+            if (response.IsSuccessStatusCode)
             {
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                string result = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(result);
             }
-            catch (Exception)
-            {
-                Console.WriteLine("Something went wrong."); //Displays an error message in the Console
-                System.Environment.Exit(1); //Stops the programm
-            }
-            if (response.StatusCode != HttpStatusCode.OK)
+            else if (response.StatusCode != HttpStatusCode.OK)
             {
                 Console.WriteLine("Something went wrong."); //Displays an error message in the Console
                 System.Environment.Exit(1); //Stops the programm
             }
-
-            // Get the response stream
-            System.IO.StreamReader streamReader = new System.IO.StreamReader(response.GetResponseStream());
-
-            // Read the response and return it as a string
-            return streamReader.ReadToEnd();
+            return null;
         }
         //Simple Put Request function
-        public HttpWebRequest SendPutRequest(string url, string requestBody)
+        public async Task<HttpClient> SendPutRequestAsync(string url, string requestBody)
         {
-            Console.WriteLine("You startet Post function");
+            Console.WriteLine("You startet Put function");
             // Create a new request to the specified URL
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
-            // Set the method to POST
-            request.Method = "POST";
+            HttpResponseMessage response = await _client.PutAsync(url, content);
 
-            // Set the content type and content length
-            request.ContentType = "application/x-www-form-urlencoded";
-            byte[] requestData = System.Text.Encoding.UTF8.GetBytes(requestBody);
-            request.ContentLength = requestData.Length;
-
-            // Write the request body
-            System.IO.Stream requestStream = request.GetRequestStream();
-            requestStream.Write(requestData, 0, requestData.Length);
-            requestStream.Close();
-
-            // Send the request and get the response
-            try
+            if (response.IsSuccessStatusCode)
             {
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                Console.WriteLine("Data updated successfully.");
+                return response.IsSuccessStatusCode;
             }
-            catch (Exception)
-            {
-                Console.WriteLine("Something went wrong."); //Displays an error message in the Console
-                System.Environment.Exit(1); //Stops the programm
-            }
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                Console.WriteLine("Something went wrong."); //Displays an error message in the Console
-                System.Environment.Exit(1); //Stops the programm
-            }
-            
-
-            // Get the response stream
-            System.IO.StreamReader streamReader = new System.IO.StreamReader(response.GetResponseStream());
-            Console.WriteLine(request);
-            // Read the response and return it as a string
-            return streamReader.ReadToEnd();
+            return null;
         }
     }
 }
