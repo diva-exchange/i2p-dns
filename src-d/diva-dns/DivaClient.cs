@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,38 +14,40 @@ namespace diva_dns
         // Todo(siro) implement class that sends Get and Post/Put requests to DivaServer and returns the responses.
 
         //Simple Get Request function
-        public HttpClient SendGetRequest(string url) // han jetzt mal mit webrequest gaschafet aber mer chans ja au eifach ändere
+        public async Task<HttpClient> SendGetRequestAsync(string url) // han jetzt mal mit webrequest gaschafet aber mer chans ja au eifach ändere
         {
             Console.WriteLine("You startet get function");
             // Create a new request to the specified URL
-            HttpResponseMessage response = await client.GetAsync(url);
+            HttpResponseMessage response = await _client.GetAsync(url);
 
             // Send the request and get the response
             if (response.IsSuccessStatusCode)
             {
                 string result = await response.Content.ReadAsStringAsync();
-                return result;
+                Console.WriteLine(result);
             }
             else if (response.StatusCode != HttpStatusCode.OK)
             {
                 Console.WriteLine("Something went wrong."); //Displays an error message in the Console
                 System.Environment.Exit(1); //Stops the programm
             }
+            return null;
         }
         //Simple Put Request function
-        public HttpWebRequest SendPutRequest(string url, string requestBody)
+        public async Task<HttpClient> SendPutRequestAsync(string url, string requestBody)
         {
             Console.WriteLine("You startet Put function");
             // Create a new request to the specified URL
             var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await client.PutAsync(url, content);
+            HttpResponseMessage response = await _client.PutAsync(url, content);
 
             if (response.IsSuccessStatusCode)
             {
                 Console.WriteLine("Data updated successfully.");
                 return response.IsSuccessStatusCode;
             }
+            return null;
         }
     }
 }

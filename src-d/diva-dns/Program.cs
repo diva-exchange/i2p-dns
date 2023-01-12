@@ -45,12 +45,12 @@ public class Program
 
             if (GetType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
             {
-                Task<String> GetResponse = DivaClient.SendGetRequest(url);
+                Task<String> GetResponse = DivaClient.SendGetRequestAsync(url);
                 Console.WriteLine(GetResponse);
             }
             else if (PutType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
             {
-                Task<String> PutResponse = DivaClient.SendPutRequest(url, requestBody);
+                Task<String> PutResponse = DivaClient.SendPutRequestAsync(url, requestBody);
                 Console.WriteLine(PutResponse);
             }
             else if (Exit.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
