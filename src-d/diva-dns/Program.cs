@@ -5,8 +5,6 @@ using diva_dns.Util;
 
 public class Program
 {
-    private static DivaDnsServer _server = new("http://+:19445/", "http://172.19.72.21:17468/");
-
     // default arguements
     private static string _divaChainAddress = "http://127.19.72.21:17468/";
     private static string _dnsServerAddress = "http://127.19.72.227:19445/";
@@ -42,7 +40,7 @@ public class Program
         Console.WriteLine($"Address of Diva Chain set to: '{_divaChainAddress}'");
         Console.WriteLine($"Diva dns server listening on: '{_dnsServerAddress}'");
 
-        _server = new DivaDnsServer(_dnsServerAddress, _divaChainAddress);
+        var server = new DivaDnsServer(_dnsServerAddress, _divaChainAddress);
 
         // Todo: Handle command line arguments
         // Possible arguments:
@@ -52,9 +50,9 @@ public class Program
 
         Console.WriteLine("Hello Diva!");
 
-        _server.Start();
+        server.Start();
 
-        if (_server.IsConnected())
+        if (server.IsConnected())
         {
             Console.WriteLine("Is connected to Diva");
         }
@@ -97,9 +95,9 @@ public class Program
             {
                 Console.WriteLine("This Request is invalid");
             }
-            }
+        }
 
-        _server.Stop();
+        server.Stop();
 
         Console.WriteLine("Bye, Diva!");
     }

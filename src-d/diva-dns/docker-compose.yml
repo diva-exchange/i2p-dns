@@ -7,6 +7,9 @@ services:
     image: diva-dns-image
     tty: true
     stdin_open: true
+    environment:
+        - DIVA_DNS_DIVA_CHAIN_ADDRESS=172.19.72.21:17468
+        - DIVA_DNS_LOCAL_ADDRESS=http://+:19445/
     networks: 
       divanet:
         ipv4_address: 172.19.72.227
