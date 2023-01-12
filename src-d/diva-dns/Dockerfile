@@ -14,6 +14,8 @@ RUN dotnet build "diva-dns.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "diva-dns.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
+EXPOSE 19445
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

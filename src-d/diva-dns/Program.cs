@@ -1,6 +1,7 @@
 ﻿
 
 using diva_dns;
+using diva_dns.Util;
 
 public class Program
 {
@@ -24,7 +25,8 @@ public class Program
         if (_server.IsConnected())
         {
             Console.WriteLine("Is connected to Diva");
-        } else
+        }
+        else
         {
             Console.WriteLine("Has no connection to Diva");
         }
