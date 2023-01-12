@@ -31,9 +31,9 @@ app.use((req, res, next) => {
     next();
 });
 app.use('/', routes_1.default);
-app.use((req, res) => {
+app.use((err, req, res) => {
     const error = new Error('not found');
-    return res.status(404).json({
+    return res.status(502).json({
         message: error.message
     });
 });

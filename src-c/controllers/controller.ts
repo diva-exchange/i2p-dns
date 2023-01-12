@@ -1,4 +1,4 @@
-import axios from 'axios';
+import http from 'http';
 import { Request, Response, NextFunction } from 'express';
 import logging from '../config/logging';
 import config from '../config/config';
@@ -20,19 +20,34 @@ const getDns2 = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getDnsFromChain = (req: Request, res: Response, next: NextFunction) => {
-    logging.info(NAMESPACE, `GetDnsFromChain ${config.server.divaApi}`);     
+    const dns: string = req.params.dns.replace(".i2p", ":i2p_");
 
-    //axios.get(config.server.divaApi)
-    //axios.get("https://catfact.ninja/fact")   
-    axios.get("http://127.19.72.21:17468/state/search/IIPDNS:google.i2p")
-        .then(response => res.status(200).send(response.data))
-        .catch(err => next(err));
+    var request = http.request({
+        host: config.divaApi.hostname,
+        port: config.divaApi.port,
+        path: `${config.divaApi.path}${dns}`,
+        method: 'GET'
+    }, function(response) {
+        var data = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on('end', () => {
+            //res.end('check result:' + data);
+            res.status(200).send(data);
+        });
+        response.on('error', (err) => {
+            res.status(404).send(err);
+        });
+    });
+    request.end();
 };
 
 const putDns = (req: Request, res: Response, next: NextFunction) => {
     logging.info(NAMESPACE, "Put Dns", req.params);
 
-    res.status(200).send(req.params);
+    res.status(200).send(req.params);   
 };
 
 const postToChain = (req: Request, res: Response, next: NextFunction) => {

@@ -36,10 +36,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use('/', route);
 
-app.use((req: Request, res: Response) => {
+app.use((err: Error, req: Request, res: Response) => {
     const error = new Error('not found');
     
-    return res.status(404).json({
+    return res.status(502).json({
         message: error.message
     });
 });

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const axios_1 = __importDefault(require("axios"));
+const http_1 = __importDefault(require("http"));
 const logging_1 = __importDefault(require("../config/logging"));
 const config_1 = __importDefault(require("../config/config"));
 const NAMESPACE = 'CONTROLLER';
@@ -20,12 +20,27 @@ const getDns2 = (req, res, next) => {
     next();
 };
 const getDnsFromChain = (req, res, next) => {
-    logging_1.default.info(NAMESPACE, `GetDnsFromChain ${config_1.default.server.divaApi}`);
-    //axios.get(config.server.divaApi)
-    //axios.get("https://catfact.ninja/fact")   
-    axios_1.default.get("http://127.19.72.21:17468/state/search/IIPDNS:google.i2p")
-        .then(response => res.status(200).send(response.data))
-        .catch(err => next(err));
+    const dns = req.params.dns.replace(".i2p", ":i2p_");
+    var request = http_1.default.request({
+        host: config_1.default.divaApi.hostname,
+        port: config_1.default.divaApi.port,
+        path: `${config_1.default.divaApi.path}${dns}`,
+        method: 'GET'
+    }, function (response) {
+        var data = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on('end', () => {
+            //res.end('check result:' + data);
+            res.status(200).send(data);
+        });
+        response.on('error', (err) => {
+            res.status(404).send(err);
+        });
+    });
+    request.end();
 };
 const putDns = (req, res, next) => {
     logging_1.default.info(NAMESPACE, "Put Dns", req.params);
