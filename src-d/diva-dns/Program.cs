@@ -5,12 +5,44 @@ using diva_dns.Util;
 
 public class Program
 {
-    private static readonly DivaServer _server = new("http://localhost:8080/", "http://127.19.72.21:17468/");
+    private static DivaDnsServer _server = new("http://+:19445/", "http://172.19.72.21:17468/");
 
-    private static readonly DivaClient _client = new();
+    // default arguements
+    private static string _divaChainAddress = "http://127.19.72.21:17468/";
+    private static string _dnsServerAddress = "http://127.19.72.227:19445/";
 
     static void Main(string[] args)
     {
+
+        // Environment variable supersede default arguments
+        var envDiva = Environment.GetEnvironmentVariable("DIVA_DNS_DIVA_CHAIN_ADDRESS");
+        if(!string.IsNullOrEmpty(envDiva))
+        {
+            _divaChainAddress = envDiva;
+        }
+        var envDns = Environment.GetEnvironmentVariable("DIVA_DNS_LOCAL_ADDRESS");
+        if(!string.IsNullOrEmpty(envDns))
+        {
+            _dnsServerAddress = envDns;
+        }
+
+
+        // Command line arguments supersede Environment variables
+        for (int i = 0; i < args.Length; ++i)
+        {
+            if (args[i] == "--dns")
+            {
+                _dnsServerAddress = args[++i];
+            } else if (args[i] == "--diva")
+            {
+                _divaChainAddress = args[++i];
+            }
+        }
+
+        Console.WriteLine($"Address of Diva Chain set to: '{_divaChainAddress}'");
+        Console.WriteLine($"Diva dns server listening on: '{_dnsServerAddress}'");
+
+        _server = new DivaDnsServer(_dnsServerAddress, _divaChainAddress);
 
         // Todo: Handle command line arguments
         // Possible arguments:
