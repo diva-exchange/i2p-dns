@@ -25,7 +25,7 @@ const getDnsFromChain = (req: Request, res: Response, next: NextFunction) => {
     var request = http.request({
         host: config.divaApi.hostname,
         port: config.divaApi.port,
-        path: `${config.divaApi.path}${dns}`,
+        path: `${config.divaApi.getPath}${dns}`,
         method: 'GET'
     }, function(response) {
         var data = '';
@@ -46,6 +46,15 @@ const getDnsFromChain = (req: Request, res: Response, next: NextFunction) => {
 
 const putDns = (req: Request, res: Response, next: NextFunction) => {
     logging.info(NAMESPACE, "Put Dns", req.params);
+    const dns: string = req.params.dns.replace(".i2p", ":i2p_");
+
+    const data: any = {
+        seq: 1, 
+        command: "data",
+        ns: dns,
+        d: 'b32'
+    };
+
 
     res.status(200).send(req.params);   
 };
