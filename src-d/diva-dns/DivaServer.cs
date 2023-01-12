@@ -36,7 +36,7 @@ namespace diva_dns
             var query = $"state/search/{domainName}";
 
             var request = new GetRequest(_client, _localDivaAddress, query);
-            if (request.SendAndWaitForAnswer())
+            if (request.SendAndWaitForAnswer(2000))
             {
                 if (request.ResponseMessage?.IsSuccessStatusCode ?? false)
                 {
@@ -73,7 +73,7 @@ namespace diva_dns
             var data = TransactionV34.PutDomainName(domainName, b32Address);
             var request = new PutRequest(_client, _localDivaAddress, data);
 
-            if (request.SendAndWaitForAnswer() && request.ResponseMessage != null)
+            if (request.SendAndWaitForAnswer(2000) && request.ResponseMessage != null)
             {
                 return new Result { StatusCode = request.ResponseMessage.StatusCode };
             }
@@ -108,8 +108,12 @@ namespace diva_dns
                 {
                     case "GET":
                         {
+                            
                             var parameter = request.RawUrl?.Length > 0 ? request.RawUrl[1..] : "/";  // cut off initial '/'
+                            Console.WriteLine($"Received request: GET/{parameter}");
                             var result = ResolveDomainName(parameter);
+
+                            Console.WriteLine($"Asked diva about '{parameter}'. Received response with status={result.StatusCode} and Value='{result.Value}'");
 
                             response.StatusCode = (int)result.StatusCode;
                             response.ContentLength64 = 0;
@@ -124,21 +128,28 @@ namespace diva_dns
                         {
                             var parameter = request.RawUrl?.Length > 0 ? request.RawUrl[1..] : "/"; // cut off initial '/'
                             var parts = parameter.Split('/');
+                            Console.WriteLine($"Received request: PUT/{parameter}");
                             var result = RegisterDomainName(parts[0], parts[1]);
+                            Console.WriteLine($"Asked diva to put '{parameter}'. Received response with status={result.StatusCode}");
                             response.StatusCode = (int)result.StatusCode;
                             break;
                         }
                     default:
+                        Console.WriteLine("Got unhandlend request (neither get nor put)");
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
                         break;
                 }
 
+                response.ContentLength64 = data.Length;
                 var outStream = response.OutputStream;
                 outStream.Write(data, 0, data.Length);
                 outStream.Close();
-            } catch
+                response.Close();
+                Console.WriteLine("Sent response to request");
+            } catch (Exception e)
             {
                 // we need the try catch because GetContext() does not unblock when the HttpListener is stopped.
+                Console.WriteLine($"Caught exception: {e.Message} --- Full Exception: {e}");
             }
         }
 
