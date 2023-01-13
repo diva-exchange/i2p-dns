@@ -7,7 +7,7 @@ Set-Location .\src-d\diva-dns\
 
 ## 1. Extract the image
 ```pwsh
-Expand-Archive -Path .\image\diva-dns-image-2.zip -DestinationPath .\image\
+Expand-Archive -Path .\image\diva-dns-image.zip -DestinationPath .\image\
 ```
 
 ## 2. Install the image
