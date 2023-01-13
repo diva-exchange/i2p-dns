@@ -93,22 +93,25 @@ namespace diva_dns
         /// Handle a get or put/post message incoming from DivaClient.
         /// Forward it to Diva and report the response back to DivaClient.
         /// </summary>
-        public void HandleMessage()
+        public void HandleMessage(IAsyncResult asyncState)
         {
+
+            HttpListener listener = (HttpListener)asyncState.AsyncState;
+
+            var context = _listener.EndGetContext(asyncState);
+            //_isWaitingForMessage = true;
+            //var context = _listener.GetContext();
+            //_isWaitingForMessage = false;
+            var request = context.Request;
+            var response = context.Response;
+            byte[] data = new byte[0];
+
             try
             {
-                _isWaitingForMessage = true;
-                var context = _listener.GetContext();
-                _isWaitingForMessage = false;
-                var request = context.Request;
-                var response = context.Response;
-                byte[] data = new byte[0];
-
                 switch (request.HttpMethod)
                 {
                     case "GET":
                         {
-                            
                             var parameter = request.RawUrl?.Length > 0 ? request.RawUrl[1..] : "/";  // cut off initial '/'
                             Console.WriteLine($"Received request: GET/{parameter}");
                             var result = ResolveDomainName(parameter);
@@ -146,10 +149,12 @@ namespace diva_dns
                 outStream.Close();
                 response.Close();
                 Console.WriteLine("Sent response to request");
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 // we need the try catch because GetContext() does not unblock when the HttpListener is stopped.
                 Console.WriteLine($"Caught exception: {e.Message} --- Full Exception: {e}");
+                // even in case of error, we still need to send the response
             }
         }
 
@@ -160,11 +165,27 @@ namespace diva_dns
 
             _messageWorker = Task.Factory.StartNew(() =>
             {
-                while(!token.IsCancellationRequested)
+                bool keepRunning = true;
+                while (keepRunning)
                 {
-                    HandleMessage();
+                    IAsyncResult asyncResult = _listener.BeginGetContext(new AsyncCallback(HandleMessage), _listener);
+                    int taskIndex = WaitHandle.WaitAny(new[]
+                    {
+                        asyncResult.AsyncWaitHandle, token.WaitHandle
+                    });
+                    switch (taskIndex)
+                    {
+                        case 0:
+                            break;
+                        case 1:
+                            keepRunning = false;
+                            break;
+                        default:
+                            token.ThrowIfCancellationRequested();
+                            break;
+                    }
                 }
-            }, token);          
+            });
         }
 
         public void Stop()
@@ -174,7 +195,8 @@ namespace diva_dns
             if (_messageWorker.IsCanceled)
             {
                 _listener.Stop();
-            } else
+            }
+            else
             {
                 _listener.Abort();
             }
