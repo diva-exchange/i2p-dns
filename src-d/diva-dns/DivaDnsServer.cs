@@ -16,8 +16,6 @@ namespace diva_dns
 
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
-        private bool _isWaitingForMessage = false;
-
         private Task _messageWorker;
 
         /// <summary>
@@ -113,10 +111,10 @@ namespace diva_dns
                     case "GET":
                         {
                             var parameter = request.RawUrl?.Length > 0 ? request.RawUrl[1..] : "/";  // cut off initial '/'
-                            Console.WriteLine($"Received request: GET/{parameter}");
+                            Console.WriteLine($"[Diva DNS Info] Received request: GET/{parameter}");
                             var result = ResolveDomainName(parameter);
 
-                            Console.WriteLine($"Asked diva about '{parameter}'. Received response with status={result.StatusCode} and Value='{result.Value}'");
+                            Console.WriteLine($"[Diva DNS Info] Asked diva about '{parameter}'. Received response with status={result.StatusCode} and Value='{result.Value}'");
 
                             response.StatusCode = (int)result.StatusCode;
                             response.ContentLength64 = 0;
@@ -131,14 +129,14 @@ namespace diva_dns
                         {
                             var parameter = request.RawUrl?.Length > 0 ? request.RawUrl[1..] : "/"; // cut off initial '/'
                             var parts = parameter.Split('/');
-                            Console.WriteLine($"Received request: PUT/{parameter}");
+                            Console.WriteLine($"[Diva DNS Info] Received request: PUT/{parameter}");
                             var result = RegisterDomainName(parts[0], parts[1]);
-                            Console.WriteLine($"Asked diva to put '{parameter}'. Received response with status={result.StatusCode}");
+                            Console.WriteLine($"[Diva DNS Info] Asked diva to put '{parameter}'. Received response with status={result.StatusCode}");
                             response.StatusCode = (int)result.StatusCode;
                             break;
                         }
                     default:
-                        Console.WriteLine("Got unhandlend request (neither get nor put)");
+                        Console.WriteLine("[Diva DNS WArning] Got unhandlend request (neither get nor put)");
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
                         break;
                 }
@@ -148,12 +146,12 @@ namespace diva_dns
                 outStream.Write(data, 0, data.Length);
                 outStream.Close();
                 response.Close();
-                Console.WriteLine("Sent response to request");
+                Console.WriteLine("[Diva DNS Info] Sent response to request");
             }
             catch (Exception e)
             {
                 // we need the try catch because GetContext() does not unblock when the HttpListener is stopped.
-                Console.WriteLine($"Caught exception: {e.Message} --- Full Exception: {e}");
+                Console.WriteLine($"[Diva DNS Warning] Caught exception: {e.Message} --- Full Exception: {e}");
                 // even in case of error, we still need to send the response
             }
         }
