@@ -2,6 +2,7 @@
 
 using diva_dns;
 using diva_dns.Util;
+using System.Net;
 
 public class Program
 {
@@ -38,8 +39,8 @@ public class Program
             }
         }
 
-        Console.WriteLine($"Address of Diva Chain set to: '{_divaChainAddress}'");
-        Console.WriteLine($"Diva dns server listening on: '{_dnsServerAddress}'");
+        Console.WriteLine($"[Diva]Address of Diva Chain set to: '{_divaChainAddress}'");
+        Console.WriteLine($"[Diva]Diva dns server listening on: '{_dnsServerAddress}'");
 
         var server = new DivaDnsServer(_dnsServerAddress, _divaChainAddress);
 
@@ -49,17 +50,17 @@ public class Program
         // = Port for localhost server (currently 8080)
         DivaClient DivaClient = new DivaClient();
 
-        Console.WriteLine("Hello Diva!");
+        Console.WriteLine("[Diva]Hello Diva!");
 
         server.Start();
 
         if (server.IsConnected())
         {
-            Console.WriteLine("Is connected to Diva");
+            Console.WriteLine("[Diva]Is connected to Diva");
         }
         else
         {
-            Console.WriteLine("Has no connection to Diva");
+            Console.WriteLine("[Diva]Has no connection to Diva");
         }
 
         //User input for Get or Post Request
@@ -73,10 +74,10 @@ public class Program
             string RequestDomain = "";
             string url = "http://127.19.72.227:19445/";
             string requestBody = "/[a-z0-9-_]{3-64}\\.i2p$/[a-z0-9]{52}$";
-            Console.WriteLine("Please select the Request type");
-            Console.WriteLine("GET /^([A-Za-z_-]{4,15}:){1,3}.i2p$");
-            Console.WriteLine("PUT /^([A-Za-z_-]{4,15}:){1,3}.i2p [a-z0-9]{52}$");
-            Console.WriteLine("Write Get or Put");
+            Console.WriteLine("[User Input]Please select the Request type");
+            Console.WriteLine("[User Input]GET /^([A-Za-z_-]{4,15}:){1,3}.i2p$");
+            Console.WriteLine("[User Input]PUT /^([A-Za-z_-]{4,15}:){1,3}.i2p [a-z0-9]{52}$");
+            Console.WriteLine("[User Input]Write Get, Put or Exit");
             var Requesttype = Console.ReadLine();
             //split first word check get put exit, if more then one word check
 
@@ -114,23 +115,24 @@ public class Program
             else if (PutType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
             {
                 RequestIp = RequestDomain ?? B32.ToBase32(RequestDomain ?? string.Empty);
-                Console.WriteLine($"Will input domainname='{RequestDomain}' with IP='{RequestIp}'");
+                Console.WriteLine($"[PUt request] Will input DomainName='{RequestDomain}' with IP='{RequestIp}'");
                 var PutResponse = DivaClient.SendPutRequestAsync(url, RequestDomain ?? string.Empty, RequestIp ?? string.Empty);
+                PutResponse.Wait();
                 Console.WriteLine(PutResponse);
             }
             else if (Exit.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine("Exit");
+                Console.WriteLine("[User Input]Exit");
                 break;
             }
             else
             {
-                Console.WriteLine("This Request is invalid");
+                Console.WriteLine("[User Input]This Request is invalid");
             }
         }
 
         server.Stop();
 
-        Console.WriteLine("Bye, Diva!");
+        Console.WriteLine("[Diva]Bye, Diva!");
     }
 }
