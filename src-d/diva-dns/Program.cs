@@ -67,35 +67,63 @@ public class Program
             string GetType = "get";
             string PutType = "put";
             string Exit = "exit";
-            string url = "http://localhost:8080/";
+            string RequestInfo = null;
+            string RequestIp = "";
+            string RequestDomain = "";
+            string url = "http://127.19.72.227:19445/";
                 string requestBody = "/[a-z0-9-_]{3-64}\\.i2p$/[a-z0-9]{52}$";
                 Console.WriteLine("Please select the Request type");
                 Console.WriteLine("GET /[a-z0-9-_]{3-64}.i2p$");
                 Console.WriteLine("PUT /[a-z0-9-_]{3-64}.i2p$/[a-z0-9]{52}$");
                 Console.WriteLine("Write Get or Put");
                 var Requesttype = Console.ReadLine();
+            //split first word check get put exit, if more then one word check
 
-            if (GetType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
+            string[] splitted_string = Requesttype.Split(" ");
+            if (splitted_string.Length > 1)
             {
-                Task<String> GetResponse = DivaClient.SendGetRequestAsync(url);
-                Console.WriteLine(GetResponse);
-            }
-            else if (PutType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
-            {
-                Task<String> PutResponse = DivaClient.SendPutRequestAsync(url, requestBody);
-                Console.WriteLine(PutResponse);
-            }
-            else if (Exit.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
-            {
-                Console.WriteLine("Exit");
-                break;
+                switch(splitted_string.Length)
+                     { case 1: 
+                        {
+                            Requesttype = splitted_string[0];
+                            break;
+                        }
+                    case 2:
+                        {
+                            Requesttype = splitted_string[0];
+                            RequestDomain = splitted_string[1];
+                            break;
+                        }
+                    default:
+                        {
+                            Requesttype = splitted_string[0];
+                            RequestDomain = splitted_string[1];
+                            RequestIp = splitted_string[2];
+                            break;
+                        }
+                }
             }
 
-            else
-            {
-                Console.WriteLine("This Request is invalid");
+                if (GetType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
+                {
+                    var GetResponse = DivaClient.SendGetRequestAsync(url, RequestDomain ?? string.Empty);
+                }
+                else if (PutType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
+                {
+                    var PutResponse = DivaClient.SendPutRequestAsync(url, RequestDomain ?? string.Empty, RequestIp ?? string.Empty);
+                    Console.WriteLine(PutResponse);
+                }
+                else if (Exit.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Exit");
+                    break;
+                }
+
+                else
+                {
+                    Console.WriteLine("This Request is invalid");
+                }
             }
-        }
 
         server.Stop();
 
