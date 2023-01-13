@@ -41,7 +41,7 @@ namespace diva_dns
             string requestBody = url + DomainName + "/" + Ip;
             var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _client.PutAsync(url, content);
+            HttpResponseMessage response = await _client.PutAsync(requestBody, content);
 
             Console.WriteLine($"[Put request]Received resposne with status {response.StatusCode}");
 
