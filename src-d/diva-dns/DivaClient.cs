@@ -16,7 +16,7 @@ namespace diva_dns
         //Simple Get Request function
         public async Task<HttpClient> SendGetRequestAsync(string url, string Requestinfo) // han jetzt mal mit webrequest gaschafet aber mer chans ja au eifach ändere
         {
-            Console.WriteLine("You startet get function");
+            Console.WriteLine("[Get request]You startet get function");
             string GetRequestInfo = url + Requestinfo;
             // Create a new request to the specified URL
             HttpResponseMessage response = await _client.GetAsync(GetRequestInfo);
@@ -25,11 +25,11 @@ namespace diva_dns
             if (response.IsSuccessStatusCode)
             {
                 string result = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(result);
+                Console.WriteLine("[Get request]" + result);
             }
             else if (response.StatusCode != HttpStatusCode.OK)
             {
-                Console.WriteLine("Something went wrong."); //Displays an error message in the Console
+                Console.WriteLine("[Get request]Something went wrong."); //Displays an error message in the Console
                 System.Environment.Exit(1); //Stops the programm
             }
             return null;
@@ -37,7 +37,7 @@ namespace diva_dns
         //Simple Put Request function
         public async Task<HttpClient> SendPutRequestAsync(string url, string DomainName, string Ip)
         {
-            Console.WriteLine("You startet Put function");
+            Console.WriteLine("[Put request]You startet Put function");
             // Create a new request to the specified URL
             string requestBody = url + DomainName + "/" + Ip;
             var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
