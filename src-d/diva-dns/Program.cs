@@ -113,7 +113,7 @@ public class Program
             }
             else if (PutType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
             {
-                RequestIp = RequestDomain ?? B32.ToBase32(RequestDomain);
+                RequestIp = RequestDomain ?? B32.ToBase32(RequestDomain ?? string.Empty);
                 Console.WriteLine($"Will input domainname='{RequestDomain}' with IP='{RequestIp}'");
                 var PutResponse = DivaClient.SendPutRequestAsync(url, RequestDomain ?? string.Empty, RequestIp ?? string.Empty);
                 Console.WriteLine(PutResponse);
@@ -123,7 +123,6 @@ public class Program
                 Console.WriteLine("Exit");
                 break;
             }
-
             else
             {
                 Console.WriteLine("This Request is invalid");

@@ -97,9 +97,6 @@ namespace diva_dns
             HttpListener listener = (HttpListener)asyncState.AsyncState;
 
             var context = _listener.EndGetContext(asyncState);
-            //_isWaitingForMessage = true;
-            //var context = _listener.GetContext();
-            //_isWaitingForMessage = false;
             var request = context.Request;
             var response = context.Response;
             byte[] data = new byte[0];
@@ -114,14 +111,17 @@ namespace diva_dns
                             Console.WriteLine($"[Diva DNS Info] Received request: GET/{parameter}");
                             var result = ResolveDomainName(parameter);
 
-                            Console.WriteLine($"[Diva DNS Info] Asked diva about '{parameter}'. Received response with status={result.StatusCode} and Value='{result.Value}'");
-
-                            response.StatusCode = (int)result.StatusCode;
-                            response.ContentLength64 = 0;
                             if (result.Value != null)
                             {
+                                Console.WriteLine($"[Diva DNS Info] Asked diva about '{parameter}'. Received response with status={result.StatusCode} and Value='{result.Value}'");
                                 var json = JsonSerializer.Serialize(new ResolveDomainNameResult { B32Address = result.Value });
                                 data = Encoding.UTF8.GetBytes(json);
+                                response.StatusCode = (int)result.StatusCode;
+                            }
+                            if (string.IsNullOrEmpty(result.Value))
+                            {
+                                Console.WriteLine($"[Diva DNS Info] Asked Diva about '{parameter}'. Received empty response with status={result.StatusCode} - will respond with 404");
+                                response.StatusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
                         }
@@ -144,15 +144,18 @@ namespace diva_dns
                 response.ContentLength64 = data.Length;
                 var outStream = response.OutputStream;
                 outStream.Write(data, 0, data.Length);
-                outStream.Close();
-                response.Close();
-                Console.WriteLine("[Diva DNS Info] Sent response to request");
             }
             catch (Exception e)
             {
                 // we need the try catch because GetContext() does not unblock when the HttpListener is stopped.
                 Console.WriteLine($"[Diva DNS Warning] Caught exception: {e.Message} --- Full Exception: {e}");
+            }
+            finally
+            {
                 // even in case of error, we still need to send the response
+                response.OutputStream.Close();
+                response.Close();
+                Console.WriteLine("[Diva DNS Info] Sent response to request");
             }
         }
 
@@ -189,7 +192,7 @@ namespace diva_dns
         public void Stop()
         {
             _tokenSource.Cancel();
-            Thread.Sleep(200);
+            Thread.Sleep(400);
             if (_messageWorker.IsCanceled)
             {
                 _listener.Stop();
