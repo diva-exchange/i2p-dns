@@ -93,16 +93,19 @@ namespace diva_dns
         /// </summary>
         public void HandleMessage(IAsyncResult asyncState)
         {
-
+            HttpListenerRequest? request = null;
+            HttpListenerResponse? response = null;
+            HttpListenerContext? context = null;
             HttpListener listener = (HttpListener)asyncState.AsyncState;
-
-            var context = _listener.EndGetContext(asyncState);
-            var request = context.Request;
-            var response = context.Response;
-            byte[] data = new byte[0];
 
             try
             {
+                context = listener.EndGetContext(asyncState);
+                request = context.Request;
+                response = context.Response;
+                byte[] data = new byte[0];
+
+
                 switch (request.HttpMethod)
                 {
                     case "GET":
@@ -153,8 +156,8 @@ namespace diva_dns
             finally
             {
                 // even in case of error, we still need to send the response
-                response.OutputStream.Close();
-                response.Close();
+                response?.OutputStream.Close();
+                response?.Close();
                 Console.WriteLine("[Diva DNS Info] Sent response to request");
             }
         }
