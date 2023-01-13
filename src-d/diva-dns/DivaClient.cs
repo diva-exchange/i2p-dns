@@ -43,7 +43,7 @@ namespace diva_dns
 
             HttpResponseMessage response = await _client.PutAsync(requestBody, content);
 
-            Console.WriteLine($"[Put request]Received resposne with status {response.StatusCode}");
+            Console.WriteLine($"[Put request]Received response with status {response.StatusCode}");
 
             return;
         }

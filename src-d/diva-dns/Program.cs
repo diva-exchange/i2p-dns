@@ -118,7 +118,6 @@ public class Program
                 Console.WriteLine($"[PUt request] Will input DomainName='{RequestDomain}' with IP='{RequestIp}'");
                 var PutResponse = DivaClient.SendPutRequestAsync(url, RequestDomain ?? string.Empty, RequestIp ?? string.Empty);
                 PutResponse.Wait();
-                Console.WriteLine(PutResponse);
             }
             else if (Exit.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
             {
