@@ -32,7 +32,7 @@
             }
             catch (Exception e)
             {
-                // Todo exception handling
+                Console.WriteLine($"[Diva DNS Warning] Encountered exception in GetRequest: {e.Message}");
             }
 
             return false;
