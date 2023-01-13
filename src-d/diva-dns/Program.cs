@@ -114,7 +114,7 @@ public class Program
             }
             else if (PutType.Equals(Requesttype, StringComparison.OrdinalIgnoreCase))
             {
-                RequestIp = RequestDomain ?? B32.ToBase32(RequestDomain ?? string.Empty);
+                RequestIp = RequestIp ?? B32.ToBase32(RequestDomain ?? string.Empty);
                 Console.WriteLine($"[PUt request] Will input DomainName='{RequestDomain}' with IP='{RequestIp}'");
                 var PutResponse = DivaClient.SendPutRequestAsync(url, RequestDomain ?? string.Empty, RequestIp ?? string.Empty);
                 PutResponse.Wait();

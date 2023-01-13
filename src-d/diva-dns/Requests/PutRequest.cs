@@ -30,7 +30,7 @@ namespace diva_dns.Requests
             }
             catch (Exception e)
             {
-                // Todo exception handling
+                Console.WriteLine($"[Diva DNS Warning] Encountered exception in PutRequest: {e.Message}");
             }
 
             return false;
