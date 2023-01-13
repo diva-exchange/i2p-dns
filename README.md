@@ -32,18 +32,27 @@ docker compose down
 ```
 
 # Use the Service
+The Terminal provides three commands:
 ## Terminal: Get
+With the Get command you can check the "B32" IP of a domain. 
 ```pwsh
 get [domain-name].i2p
 ```
 
 ## Terminal: Put
+With the put command you can register a domain name with a "B32" IP.
 ```pwsh
 put [domain-name].i2p [b32-string]
 ```
 
+## Terminal: Exit
+With the Exit command you can shut down the Diva server and close the Terminal.
+```pwsh
+exit
+```
+
 ## REST API
-Server erreichbar unter: `http://127.19.72.227:19445/`.
+Server is accessible under: `http://127.19.72.227:19445/`.
 ```
 GET /^([A-Za-z_-]{4,15}:){1,3}\.i2p$
 
