@@ -1,66 +1,49 @@
-import http from 'http';
+import axios from 'axios';
 import { Request, Response, NextFunction } from 'express';
 import logging from '../config/logging';
 import config from '../config/config';
+import Command from '../model/command';
 
 const NAMESPACE = 'CONTROLLER';
 
-const getDns = (req: Request, res: Response, next: NextFunction) => {
-    logging.info(NAMESPACE, `Get DNS called ${req.params.dns.substring(0)}`);
-    next();
-};
-
-const getDns2 = (req: Request, res: Response, next: NextFunction) => {
-    logging.info(NAMESPACE, `Get DNS 2 called ${req.params.dns.substring(0)}`);
-   /* res.send({
-        status: 200,
-        message: req.params.dns
-    });    */
-    next();
-};
-
 const getDnsFromChain = (req: Request, res: Response, next: NextFunction) => {
     const dns: string = req.params.dns.replace(".i2p", ":i2p_");
+    const url: string = `http://${config.divaApi.hostname}:${config.divaApi.port}${config.divaApi.getPath}${dns}`;
+    
+    logging.info(NAMESPACE, url);
 
-    var request = http.request({
-        host: config.divaApi.hostname,
-        port: config.divaApi.port,
-        path: `${config.divaApi.getPath}${dns}`,
-        method: 'GET'
-    }, function(response) {
-        var data = '';
-        response.setEncoding('utf8');
-        response.on('data', (chunk) => {
-            data += chunk;
+    axios.get(url)
+        .then(response => {
+            res.status(200).send(response)
+        })
+        .catch(err => {
+            res.status(404).send(err)
         });
-        response.on('end', () => {
-            //res.end('check result:' + data);
-            res.status(200).send(data);
-        });
-        response.on('error', (err) => {
-            res.status(404).send(err);
-        });
-    });
-    request.end();
 };
 
 const putDns = (req: Request, res: Response, next: NextFunction) => {
-    logging.info(NAMESPACE, "Put Dns", req.params);
-    const dns: string = req.params.dns.replace(".i2p", ":i2p_");
+    logging.info(NAMESPACE, "PUT DNS CALL");
 
-    const data: any = {
-        seq: 1, 
-        command: "data",
-        ns: dns,
-        d: 'b32'
+    const url: string = `http://${config.divaApi.hostname}:${config.divaApi.port}${config.divaApi.putPath}`;
+
+    let command = new Command(req.params.dns, req.params.b32);
+    const data: any = [command];
+
+    const httpHeaders: any = {
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+        }
     };
-
-
-    res.status(200).send(req.params);   
+    
+    axios.put(url, data, httpHeaders)
+        .then(response => {
+            res.status(200).send(response.data)
+        })
+        .catch(err => res.status(403).send(err.message));
 };
 
 const postToChain = (req: Request, res: Response, next: NextFunction) => {
 
 };
 
-export default {getDns, getDns2, getDnsFromChain, postToChain, putDns}
+export default {getDnsFromChain, postToChain, putDns}
