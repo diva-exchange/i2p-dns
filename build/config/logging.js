@@ -36,5 +36,8 @@ const error = (namespace, message, object) => {
     }
 };
 exports.default = {
-    info, warn, debug, error
+    info,
+    warn,
+    debug,
+    error,
 };

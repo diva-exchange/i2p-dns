@@ -3,49 +3,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const http_1 = __importDefault(require("http"));
+const axios_1 = __importDefault(require("axios"));
 const logging_1 = __importDefault(require("../config/logging"));
 const config_1 = __importDefault(require("../config/config"));
-const NAMESPACE = 'CONTROLLER';
-const getDns = (req, res, next) => {
-    logging_1.default.info(NAMESPACE, `Get DNS called ${req.params.dns.substring(0)}`);
-    next();
-};
-const getDns2 = (req, res, next) => {
-    logging_1.default.info(NAMESPACE, `Get DNS 2 called ${req.params.dns.substring(0)}`);
-    /* res.send({
-         status: 200,
-         message: req.params.dns
-     });    */
-    next();
-};
+const command_1 = __importDefault(require("../model/command"));
+const NAMESPACE = "CONTROLLER";
 const getDnsFromChain = (req, res, next) => {
     const dns = req.params.dns.replace(".i2p", ":i2p_");
-    var request = http_1.default.request({
-        host: config_1.default.divaApi.hostname,
-        port: config_1.default.divaApi.port,
-        path: `${config_1.default.divaApi.path}${dns}`,
-        method: 'GET'
-    }, function (response) {
-        var data = '';
-        response.setEncoding('utf8');
-        response.on('data', (chunk) => {
-            data += chunk;
-        });
-        response.on('end', () => {
-            //res.end('check result:' + data);
-            res.status(200).send(data);
-        });
-        response.on('error', (err) => {
-            res.status(404).send(err);
-        });
+    const url = `http://${config_1.default.divaApi.hostname}:${config_1.default.divaApi.port}${config_1.default.divaApi.getPath}${dns}`;
+    logging_1.default.info(NAMESPACE, url);
+    axios_1.default
+        .get(url)
+        .then((response) => {
+        res.status(200).send(response);
+    })
+        .catch((err) => {
+        res.status(404).send(err);
     });
-    request.end();
 };
 const putDns = (req, res, next) => {
-    logging_1.default.info(NAMESPACE, "Put Dns", req.params);
-    res.status(200).send(req.params);
+    logging_1.default.info(NAMESPACE, "PUT DNS CALL");
+    const url = `http://${config_1.default.divaApi.hostname}:${config_1.default.divaApi.port}${config_1.default.divaApi.putPath}`;
+    let command = new command_1.default(req.params.dns, req.params.b32);
+    const data = [command];
+    const httpHeaders = {
+        headers: {
+            "Content-Type": "application/json; charset=utf-8",
+        },
+    };
+    axios_1.default
+        .put(url, data, httpHeaders)
+        .then((response) => {
+        res.status(200).send(response.data);
+    })
+        .catch((err) => res.status(403).send(err.message));
 };
-const postToChain = (req, res, next) => {
-};
-exports.default = { getDns, getDns2, getDnsFromChain, postToChain, putDns };
+const postToChain = (req, res, next) => { };
+exports.default = { getDnsFromChain, postToChain, putDns };

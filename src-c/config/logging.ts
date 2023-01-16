@@ -1,39 +1,51 @@
 const getTimeStamp = (): string => {
-    return new Date().toISOString();
+  return new Date().toISOString();
 };
 
 const info = (namespace: string, message: string, object?: any) => {
-    if (object) {
-        console.log(`[${getTimeStamp()}] [INFO] [${namespace}] ${message}`, object);
-    } else {
-        console.log(`[${getTimeStamp()}] [INFO] [${namespace}] ${message}`);
-    }
+  if (object) {
+    console.log(`[${getTimeStamp()}] [INFO] [${namespace}] ${message}`, object);
+  } else {
+    console.log(`[${getTimeStamp()}] [INFO] [${namespace}] ${message}`);
+  }
 };
 
 const warn = (namespace: string, message: string, object?: any) => {
-    if (object) {
-        console.warn(`[${getTimeStamp()}] [WARN] [${namespace}] ${message}`, object);
-    } else {
-        console.warn(`[${getTimeStamp()}] [WARN] [${namespace}] ${message}`);
-    }
+  if (object) {
+    console.warn(
+      `[${getTimeStamp()}] [WARN] [${namespace}] ${message}`,
+      object
+    );
+  } else {
+    console.warn(`[${getTimeStamp()}] [WARN] [${namespace}] ${message}`);
+  }
 };
 
 const debug = (namespace: string, message: string, object?: any) => {
-    if (object) {
-        console.debug(`[${getTimeStamp()}] [DEBUG] [${namespace}] ${message}`, object);
-    } else {
-        console.debug(`[${getTimeStamp()}] [DEBUG] [${namespace}] ${message}`);
-    }
+  if (object) {
+    console.debug(
+      `[${getTimeStamp()}] [DEBUG] [${namespace}] ${message}`,
+      object
+    );
+  } else {
+    console.debug(`[${getTimeStamp()}] [DEBUG] [${namespace}] ${message}`);
+  }
 };
 
 const error = (namespace: string, message: string, object?: any) => {
-    if (object) {
-        console.error(`[${getTimeStamp()}] [ERROR] [${namespace}] ${message}`, object);
-    } else {
-        console.error(`[${getTimeStamp()}] [ERROR] [${namespace}] ${message}`);
-    }
+  if (object) {
+    console.error(
+      `[${getTimeStamp()}] [ERROR] [${namespace}] ${message}`,
+      object
+    );
+  } else {
+    console.error(`[${getTimeStamp()}] [ERROR] [${namespace}] ${message}`);
+  }
 };
 
 export default {
-    info, warn, debug, error
+  info,
+  warn,
+  debug,
+  error,
 };

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "rm -rf build/ && prettier --write src-c/",
-    "build": "rm -rf build/ && prettier --write src-c/ && tsc"
+    "build": "rm -rf build/ && prettier --write src-c/ && npx tsc"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,8 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "nodemon": "^2.0.20",
-    "prettier": "^2.8.2"
+    "prettier": "^2.8.2",
+    "typescript": "^4.9.4"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.2",

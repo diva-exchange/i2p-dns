@@ -2,12 +2,24 @@ version: "3.9"
 
 services:
   app:
-    container_name: divax-i2p-dns-app
-    image: divax-i2p-dns-app
+    container_name: i2p-dns-team-c
+    image: i2p-dns-team-c
     restart: always
     build:
       context: .
       dockerfile: Dockerfile
       target: base
+    environment: 
+      DIVA_API_HOSTNAME: 172.19.72.21
+      DIVA_API_PORT: 17468
+      SERVER_HOSTNAME: 172.19.72.45
+      SERVER_PORT: 1337
     ports:
       - "${PORT}:${PORT}"
+    networks:
+      divanet:
+        ipv4_address: 172.19.72.45
+networks:
+  divanet:
+    name: network.join.testnet.diva.i2p
+    external: true
