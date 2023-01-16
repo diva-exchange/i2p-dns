@@ -2,9 +2,35 @@
 
 ## Summary
 
-## Classes
-
 ## API-Description
+
+### GET-Request
+
+#### Example
+
+```
+
+GET REQUEST
+
+```
+
+| Field         | Type          | Description           |
+| :---:         |    :----:     |          :---:        |
+| Test          | Test          | Test                  |
+
+### PUT-Request
+
+#### Example
+
+```
+
+PUT REQUEST
+
+```
+
+| Field         | Type          | Description           |
+| :---:         |    :----:     |          :---:        |
+| Test          | Test          | Test                  |
 
 ## Build
 
