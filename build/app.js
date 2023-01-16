@@ -32,7 +32,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use("/", routes_1.default);
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     return res.status(502).json({
         message: err,
     });

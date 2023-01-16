@@ -9,15 +9,16 @@ const config_1 = __importDefault(require("../config/config"));
 const command_1 = __importDefault(require("../model/command"));
 const NAMESPACE = "CONTROLLER";
 const getDnsFromChain = (req, res, next) => {
-    const dns = req.params.dns.replace(".i2p", ":i2p_");
+    const dns = "IIPDNS:" + req.params.dns.replace(".i2p", ":i2p_");
     const url = `http://${config_1.default.divaApi.hostname}:${config_1.default.divaApi.port}${config_1.default.divaApi.getPath}${dns}`;
     logging_1.default.info(NAMESPACE, url);
     axios_1.default
         .get(url)
         .then((response) => {
-        res.status(200).send(response);
+        res.status(200).send(response.data);
     })
         .catch((err) => {
+        logging_1.default.info(NAMESPACE, "ERROR: ", err);
         res.status(404).send(err);
     });
 };

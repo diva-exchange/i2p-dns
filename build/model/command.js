@@ -6,7 +6,7 @@ class Command {
         this.command = "data";
         this.ns = "";
         this.d = "";
-        this.ns = dns.replace(".i2p", ":i2p_");
+        this.ns = "IIPDNS:" + dns.replace(".i2p", ":i2p_");
         this.d = b32;
     }
 }

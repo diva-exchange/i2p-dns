@@ -7,7 +7,7 @@ import Command from "../model/command";
 const NAMESPACE = "CONTROLLER";
 
 const getDnsFromChain = (req: Request, res: Response, next: NextFunction) => {
-  const dns: string = req.params.dns.replace(".i2p", ":i2p_");
+  const dns: string = "IIPDNS:" + req.params.dns.replace(".i2p", ":i2p_");
   const url: string = `http://${config.divaApi.hostname}:${config.divaApi.port}${config.divaApi.getPath}${dns}`;
 
   logging.info(NAMESPACE, url);
@@ -15,9 +15,10 @@ const getDnsFromChain = (req: Request, res: Response, next: NextFunction) => {
   axios
     .get(url)
     .then((response) => {
-      res.status(200).send(response);
+      res.status(200).send(response.data);
     })
     .catch((err) => {
+      logging.info(NAMESPACE, "ERROR: ", err);
       res.status(404).send(err);
     });
 };

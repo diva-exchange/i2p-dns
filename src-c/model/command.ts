@@ -12,7 +12,7 @@ export default class Command implements iCommand {
   d: string = "";
 
   constructor(dns: string, b32: string) {
-    this.ns = dns.replace(".i2p", ":i2p_");
+    this.ns = "IIPDNS:" + dns.replace(".i2p", ":i2p_");
     this.d = b32;
   }
 }

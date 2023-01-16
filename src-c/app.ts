@@ -51,11 +51,18 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use("/", route);
 
-app.use((err: ErrorRequestHandler, req: Request, res: Response, next: NextFunction) => {
-  return res.status(502).json({
-    message: err,
-  });
-});
+app.use(
+  (
+    err: ErrorRequestHandler,
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    return res.status(502).json({
+      message: err,
+    });
+  }
+);
 
 app.listen(config.server.port, () => {
   logging.info(NAMESPACE, "Server is listening", config);
