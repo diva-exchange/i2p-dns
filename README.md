@@ -9,28 +9,18 @@
 #### Example
 
 ```
-
-GET REQUEST
-
+GET /state/search/
+curl -i -H 'Accept: application/json' `http://localhost:1337/state/search/IIPDNS:<PUT-YOUR-DNS-HERE>:i2p_`
 ```
-
-| Field         | Type          | Description           |
-| :---:         |    :----:     |          :---:        |
-| Test          | Test          | Test                  |
 
 ### PUT-Request
 
 #### Example
 
 ```
-
 PUT REQUEST
-
+curl -X PUT -H "Content-Type: application/json" -d '{"seq":1, "command":"data", "ns":"IIPDNS:<YOUR-DNS>:i2p_", "d":"<B32 STRING>"}' http://172.19.72.21:17468/transaction/
 ```
-
-| Field         | Type          | Description           |
-| :---:         |    :----:     |          :---:        |
-| Test          | Test          | Test                  |
 
 ## Build
 
