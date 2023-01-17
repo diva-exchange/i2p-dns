@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "diva-dns": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

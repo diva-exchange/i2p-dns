@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  diva_dns:
+    container_name: i2p.diva.dns
+    build: .
+    image: diva-dns-image
+    tty: true
+    stdin_open: true
+    environment:
+        - DIVA_DNS_DIVA_CHAIN_ADDRESS=http://172.19.72.21:17468/
+        - DIVA_DNS_LOCAL_ADDRESS=http://+:19445/
+    networks: 
+      divanet:
+        ipv4_address: 172.19.72.227
+    ports:
+      - "127.19.72.227:19445:19445"
+networks:
+  divanet:
+    # run in same network as diva-dockerized
+    name: network.join.testnet.diva.i2p
+    external: true
