@@ -18,7 +18,7 @@ curl -i -H 'Accept: application/json' `http://localhost:1337/state/search/IIPDNS
 #### Example
 
 ```
-PUT REQUEST
+PUT /transaction/
 curl -X PUT -H "Content-Type: application/json" -d '{"seq":1, "command":"data", "ns":"IIPDNS:<YOUR-DNS>:i2p_", "d":"<B32 STRING>"}' http://172.19.72.21:17468/transaction/
 ```
 
