@@ -5,22 +5,35 @@ Erstellung eines einfachen «DNS»-Prototypen in einem vertrauenslosen, verteilt
 
 ## API-Description
 
-### GET-Request
+Default IP: 172.19.72.45
+Default Port: 1337
 
-#### Example
+### Example requests for Diva Chain
 
+#### GET-Request
 ```
 GET /state/search/
-curl -i -H 'Accept: application/json' `http://localhost:1337/state/search/IIPDNS:<PUT-YOUR-DNS-HERE>:i2p_`
+curl -i -H 'Accept: application/json' http://<DIVA.DOCKERIZED-IP>:17468/state/search/IIPDNS:<PUT-YOUR-DNS-HERE>:i2p_
 ```
 
 ### PUT-Request
-
-#### Example
-
 ```
 PUT /transaction/
-curl -X PUT -H "Content-Type: application/json" -d '{"seq":1, "command":"data", "ns":"IIPDNS:<YOUR-DNS>:i2p_", "d":"<B32 STRING>"}' http://172.19.72.21:17468/transaction/
+curl -X PUT -H "Content-Type: application/json; charset=utf-8" -d '[{"seq":1, "command":"data", "ns":"<PUT-YOUR-DNS-HERE>", "d":"<B32>"}]' http://<DIVA.DOCKERIZED-IP>:17468/transaction/
+```
+
+### Example requests from our app
+
+#### GET-Request
+```
+GET /<PUT-YOUR-DNS-HERE>
+curl -i -H 'Accept: application/json' http://172.19.72.45:1337/<PUT-YOUR-DNS-HERE>
+```
+
+### PUT-Request
+```
+PUT /<PUT-YOUR-DNS-HERE>/<B32>
+curl -X PUT -H "Content-Type: application/json; charset=utf-8" http://172.19.72.45:1337/<PUT-YOUR-DNS-HERE>/<B32>
 ```
 
 ## Build / Development
