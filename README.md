@@ -43,4 +43,4 @@ Type the following command into the command-line. Please be sure you are in the 
 
 ## Conclusion
 Zu Beginn der Arbeit hatten wir einige Probleme mit der Installation der Diva-Chain. Da wir beide wenig Linux Vorkenntnisse haben, mussten wir viel Zeit investieren um uns grundlegende Terminal-Befehle beizubringen.
-Dank Rücksprachen mit Konrad, konnten wir die Probleme lösen und eine laufffähige node/TypeScript Applikation entwicklen.
+Dank Rücksprachen mit Konrad, konnten wir die Probleme lösen und eine lauffähige node/TypeScript Applikation entwicklen.
