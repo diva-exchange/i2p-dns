@@ -42,5 +42,5 @@ Type the following command into the command-line. Please be sure you are in the 
 `docker compose stop`
 
 ## Conclusion
-Zu Beginn der Arbeit hatten wir einige Probleme mit der Installation der Diva-Chain. Da wir beide wenig Linux Vorkentnisse haben, mussten wir viel Zeit investieren um uns grundlegende Terminal-Befehle beizubringen.
+Zu Beginn der Arbeit hatten wir einige Probleme mit der Installation der Diva-Chain. Da wir beide wenig Linux Vorkenntnisse haben, mussten wir viel Zeit investieren um uns grundlegende Terminal-Befehle beizubringen.
 Dank Rücksprachen mit Konrad, konnten wir die Probleme lösen und eine laufffähige node/TypeScript Applikation entwicklen.
