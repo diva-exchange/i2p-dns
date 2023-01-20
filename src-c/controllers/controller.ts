@@ -45,6 +45,4 @@ const putDns = (req: Request, res: Response, next: NextFunction) => {
     .catch((err) => res.status(403).send(err.message));
 };
 
-const postToChain = (req: Request, res: Response, next: NextFunction) => {};
-
-export default { getDnsFromChain, postToChain, putDns };
+export default { getDnsFromChain, putDns };
