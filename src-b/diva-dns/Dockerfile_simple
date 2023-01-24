@@ -1,0 +1,13 @@
+FROM bellsoft/liberica-runtime-container:jre-17-glibc
+
+LABEL org.opencontainers.image.authors="Edith Birrer <edith.birrer@hslu.ch>"
+LABEL org.opencontainers.image.title="Prototype of a simple DNS for Diva-Exchange"
+LABEL org.opencontainers.image.description="Start container: `DIVAEXCHANGE_BASEURL=<divaBaseUrl> docker compose up -d` where <divaBaseUrl> is the URL of a Diva blockchain node, e.g. `http://127.19.72.21:17468`.   \
+Usage: Lookup a domain: `GET /<domain.i2p>` where <domain.i2p> is a domain name in format \"[a-z0-9-_]{3-64}\.i2p$\".    \
+       Register a new domain: `PUT /<domain.ip2>/<b32address>` where <b32address> is the address in format \"[a-z0-9]{52}$\" and <domain.i2p> as above.    \
+Stop container: `DIVAEXCHANGE_BASEURL=<divaBaseUrl> docker compose down` (<divaBaseUrl> see above)"
+
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+
+CMD ["java","-jar","/app.jar"]
