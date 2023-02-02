@@ -1,0 +1,35 @@
+# Build our minimal JRE using jlink
+FROM bellsoft/liberica-runtime-container:jdk-all-17-glibc as builder
+
+USER root
+
+RUN jlink \
+    --module-path "$JAVA_HOME/jmods" \
+    --add-modules java.base,java.compiler,java.desktop,java.instrument,java.management,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.security.jgss,java.sql,jdk.jfr,jdk.unsupported \
+    --verbose \
+    --strip-debug \
+    --compress 2 \
+    --no-header-files \
+    --no-man-pages \
+    --output /opt/jre-minimal
+
+USER app
+
+FROM bellsoft/liberica-runtime-container:jre-17-glibc
+
+ENV JAVA_HOME=/opt/jre
+
+LABEL org.opencontainers.image.authors="Edith Birrer <edith.birrer@hslu.ch>"
+LABEL org.opencontainers.image.title="Prototype of a simple DNS for Diva-Exchange"
+LABEL org.opencontainers.image.description="Start container: `DIVAEXCHANGE_BASEURL=<divaBaseUrl> docker compose up -d` where <divaBaseUrl> is the URL of a Diva blockchain node, e.g. `http://127.19.72.21:17468`.   \
+Usage: Lookup a domain: `GET /<domain.i2p>` where <domain.i2p> is a domain name in format \"[a-z0-9-_]{3-64}\.i2p$\".    \
+       Register a new domain: `PUT /<domain.ip2>/<b32address>` where <b32address> is the address in format \"[a-z0-9]{52}$\" and <domain.i2p> as above.    \
+Stop container: `DIVAEXCHANGE_BASEURL=<divaBaseUrl> docker compose down` (<divaBaseUrl> see above)"
+
+# Copy the JRE created in the last step into our $JAVA_HOME
+COPY --from=builder /opt/jre-minimal $JAVA_HOME
+
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+
+CMD ["java","-jar","/app.jar"]
