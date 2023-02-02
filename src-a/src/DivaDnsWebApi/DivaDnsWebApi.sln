@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DivaDnsWebApi", "DivaDnsWebApi.csproj", "{6E642661-C008-47D5-80CE-9F8B0A141DB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E642661-C008-47D5-80CE-9F8B0A141DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E642661-C008-47D5-80CE-9F8B0A141DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E642661-C008-47D5-80CE-9F8B0A141DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E642661-C008-47D5-80CE-9F8B0A141DB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EC390DD5-FD3C-4702-AE1C-D039F19413FE}
+	EndGlobalSection
+EndGlobal
